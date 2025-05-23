@@ -274,6 +274,10 @@ class Player:
         print(f"{other_player.name} has received ${cash_received} and the following properties: {properties_received}")
 
     def trade_with_ai(self, computer, board):
+        if computer is None:
+            print("There is no AI player in the game to trade with.")
+            return
+
         cash_offered = int(input("How much cash do you want to offer? "))
         properties_to_offer = input("Enter the properties do you want to offer separated by commas\n").split(',')
 
