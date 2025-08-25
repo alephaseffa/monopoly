@@ -451,6 +451,11 @@ class GameController:
             
         property_card = self.board[position]
         
+        # Handle houses_built which might be "N/A" for special spaces
+        houses_built = getattr(property_card, 'houses_built', 0)
+        if houses_built == "N/A" or not isinstance(houses_built, int):
+            houses_built = 0
+            
         return {
             "name": property_card.card_name,
             "color_group": getattr(property_card, 'color_group', 'N/A'),
@@ -458,7 +463,7 @@ class GameController:
             "rent": getattr(property_card, 'rent_prices', {}),
             "owner": property_card.owner.name if hasattr(property_card.owner, 'name') else str(property_card.owner),
             "mortgaged": getattr(property_card, 'mortgaged', False),
-            "houses": getattr(property_card, 'houses_built', 0)
+            "houses": houses_built
         }
     
     def get_game_state(self) -> Dict[str, Any]:

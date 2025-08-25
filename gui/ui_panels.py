@@ -538,7 +538,8 @@ class PropertyDetailsPanel:
                     details.append(f"  {houses} houses: ${rent}")
         
         houses = property_data.get("houses", 0)
-        if houses > 0:
+        # Handle cases where houses might be "N/A" or other non-integer values
+        if isinstance(houses, int) and houses > 0:
             if houses == 5:
                 details.append(f"\n🏨 Hotel built")
             else:
