@@ -166,14 +166,52 @@ class PlayerInfoPanel:
             widgets["frame"].config(bg=UI_COLORS["button_disabled"])
     
     def set_current_player(self, player_name: str):
-        """Highlight the current player"""
-        # Hide all current indicators
-        for widgets in self.player_widgets.values():
+        """Highlight the current player with enhanced visual feedback"""
+        # Reset all players to normal appearance
+        for name, widgets in self.player_widgets.items():
             widgets["current_indicator"].pack_forget()
+            # Reset frame appearance
+            normal_bg = lighten_color(widgets["color"], 0.8)
+            widgets["frame"].config(bg=normal_bg, relief="solid", bd=1)
+            
+            # Reset all child widgets background
+            for widget_key in ["name_label", "balance_label", "properties_label", "jail_status"]:
+                if widget_key in widgets:
+                    widgets[widget_key].config(bg=normal_bg)
         
-        # Show indicator for current player
+        # Highlight current player
         if player_name in self.player_widgets:
-            self.player_widgets[player_name]["current_indicator"].pack(side="right")
+            widgets = self.player_widgets[player_name]
+            
+            # Show turn indicator
+            widgets["current_indicator"].pack(side="right")
+            
+            # Enhanced highlighting - brighter background and stronger border
+            highlighted_bg = lighten_color(widgets["color"], 0.6)
+            widgets["frame"].config(bg=highlighted_bg, relief="raised", bd=3)
+            
+            # Update all child widgets to use highlighted background
+            for widget_key in ["name_label", "balance_label", "properties_label", "jail_status"]:
+                if widget_key in widgets:
+                    widgets[widget_key].config(bg=highlighted_bg)
+            
+            # Add pulsing effect to current indicator
+            self._pulse_current_indicator(widgets["current_indicator"])
+    
+    def _pulse_current_indicator(self, indicator_widget):
+        """Add a subtle pulsing animation to the current player indicator"""
+        def pulse():
+            try:
+                # Toggle between normal and highlighted
+                current_color = indicator_widget.cget("fg")
+                new_color = UI_COLORS["text_highlight"] if current_color != UI_COLORS["text_highlight"] else UI_COLORS["text_success"]
+                indicator_widget.config(fg=new_color)
+                # Schedule next pulse
+                indicator_widget.after(800, pulse)
+            except tk.TclError:
+                # Widget destroyed, stop pulsing
+                pass
+        pulse()
     
     def get_frame(self):
         """Return the main frame widget"""
@@ -237,7 +275,7 @@ class ActionControlPanel:
         self.buttons_frame = tk.Frame(self.frame, bg=UI_COLORS["panel_background"])
         self.buttons_frame.pack(pady=10, padx=10, fill="x")
         
-        # Roll Dice button
+        # Roll Dice button with enhanced feedback
         self.roll_button = tk.Button(
             self.buttons_frame,
             text="🎲 ROLL DICE",
@@ -247,11 +285,14 @@ class ActionControlPanel:
             relief="raised",
             bd=3,
             command=self._handle_roll_dice,
-            cursor="hand2"
+            cursor="hand2",
+            activebackground=lighten_color(UI_COLORS["button_primary"], 0.8),
+            activeforeground="white"
         )
         self.roll_button.pack(fill="x", pady=2)
+        self._add_button_hover_effects(self.roll_button, UI_COLORS["button_primary"])
         
-        # Buy Property button
+        # Buy Property button with enhanced feedback
         self.buy_button = tk.Button(
             self.buttons_frame,
             text="💰 BUY PROPERTY",
@@ -262,11 +303,14 @@ class ActionControlPanel:
             bd=3,
             command=self._handle_buy_property,
             cursor="hand2",
-            state="disabled"
+            state="disabled",
+            activebackground=lighten_color(UI_COLORS["button_secondary"], 0.8),
+            activeforeground="white"
         )
         self.buy_button.pack(fill="x", pady=2)
+        self._add_button_hover_effects(self.buy_button, UI_COLORS["button_secondary"])
         
-        # Skip Purchase button
+        # Skip Purchase button with enhanced feedback
         self.skip_button = tk.Button(
             self.buttons_frame,
             text="❌ SKIP PURCHASE",
@@ -277,9 +321,12 @@ class ActionControlPanel:
             bd=3,
             command=self._handle_skip_purchase,
             cursor="hand2",
-            state="disabled"
+            state="disabled",
+            activebackground=lighten_color(UI_COLORS["button_primary"], 0.8),
+            activeforeground="white"
         )
         self.skip_button.pack(fill="x", pady=2)
+        self._add_button_hover_effects(self.skip_button, UI_COLORS["button_primary"])
         
         # Current turn info
         self.turn_info_label = tk.Label(
@@ -342,58 +389,95 @@ class ActionControlPanel:
         pass
     
     def _draw_dice(self, die1: int, die2: int):
-        """Draw dice on canvas"""
+        """Draw enhanced dice on canvas with shadows and 3D effect"""
         self.dice_canvas.delete("all")
         
-        # Draw first die
-        self._draw_single_die(15, 15, 20, die1)
+        # Draw shadows first (behind the dice)
+        self._draw_die_shadow(17, 17, 20)  # Shadow for first die
+        self._draw_die_shadow(67, 17, 20)  # Shadow for second die
         
-        # Draw second die  
+        # Draw the actual dice
+        self._draw_single_die(15, 15, 20, die1)
         self._draw_single_die(65, 15, 20, die2)
     
-    def _draw_single_die(self, x: int, y: int, size: int, value: int):
-        """Draw a single die with dots"""
-        # Draw die background
+    def _draw_die_shadow(self, x: int, y: int, size: int):
+        """Draw shadow behind die for 3D effect"""
         self.dice_canvas.create_rectangle(
             x, y, x + size, y + size,
-            fill="white",
-            outline="black",
+            fill="#888888",
+            outline="#666666",
+            width=1
+        )
+    
+    def _draw_single_die(self, x: int, y: int, size: int, value: int):
+        """Draw a single die with enhanced 3D appearance and dots"""
+        # Draw die background with gradient effect
+        self.dice_canvas.create_rectangle(
+            x, y, x + size, y + size,
+            fill="#F8F8FF",  # Ghost white for clean look
+            outline="#2F4F4F",  # Dark slate gray border
             width=2
         )
         
-        # Draw dots based on value
-        dot_size = 3
+        # Add subtle inner border for 3D effect
+        self.dice_canvas.create_rectangle(
+            x + 1, y + 1, x + size - 1, y + size - 1,
+            fill="",
+            outline="#E6E6FA",  # Lavender highlight
+            width=1
+        )
+        
+        # Draw dots based on value with enhanced styling
+        dot_size = 2.5
         center_x = x + size // 2
         center_y = y + size // 2
         
+        # Define dot color and shadow
+        dot_color = "#2F4F4F"  # Dark slate gray
+        dot_shadow = "#696969"  # Dim gray for shadow
+        
+        def draw_enhanced_dot(dot_x, dot_y):
+            """Draw a single dot with shadow effect"""
+            # Draw shadow slightly offset
+            self.dice_canvas.create_oval(
+                dot_x - dot_size + 0.5, dot_y - dot_size + 0.5,
+                dot_x + dot_size + 0.5, dot_y + dot_size + 0.5,
+                fill=dot_shadow, outline=""
+            )
+            # Draw main dot
+            self.dice_canvas.create_oval(
+                dot_x - dot_size, dot_y - dot_size,
+                dot_x + dot_size, dot_y + dot_size,
+                fill=dot_color, outline="#000000", width=0.5
+            )
+        
         if value == 1:
-            self.dice_canvas.create_oval(center_x - dot_size, center_y - dot_size, 
-                                       center_x + dot_size, center_y + dot_size, fill="black")
+            draw_enhanced_dot(center_x, center_y)
         elif value == 2:
-            self.dice_canvas.create_oval(x + 5, y + 5, x + 8, y + 8, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, y + size - 8, x + size - 5, y + size - 5, fill="black")
+            draw_enhanced_dot(x + 6, y + 6)
+            draw_enhanced_dot(x + size - 6, y + size - 6)
         elif value == 3:
-            self.dice_canvas.create_oval(x + 5, y + 5, x + 8, y + 8, fill="black")
-            self.dice_canvas.create_oval(center_x - 1, center_y - 1, center_x + 2, center_y + 2, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, y + size - 8, x + size - 5, y + size - 5, fill="black")
+            draw_enhanced_dot(x + 6, y + 6)
+            draw_enhanced_dot(center_x, center_y)
+            draw_enhanced_dot(x + size - 6, y + size - 6)
         elif value == 4:
-            self.dice_canvas.create_oval(x + 5, y + 5, x + 8, y + 8, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, y + 5, x + size - 5, y + 8, fill="black")
-            self.dice_canvas.create_oval(x + 5, y + size - 8, x + 8, y + size - 5, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, y + size - 8, x + size - 5, y + size - 5, fill="black")
+            draw_enhanced_dot(x + 6, y + 6)
+            draw_enhanced_dot(x + size - 6, y + 6)
+            draw_enhanced_dot(x + 6, y + size - 6)
+            draw_enhanced_dot(x + size - 6, y + size - 6)
         elif value == 5:
-            self.dice_canvas.create_oval(x + 5, y + 5, x + 8, y + 8, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, y + 5, x + size - 5, y + 8, fill="black")
-            self.dice_canvas.create_oval(center_x - 1, center_y - 1, center_x + 2, center_y + 2, fill="black")
-            self.dice_canvas.create_oval(x + 5, y + size - 8, x + 8, y + size - 5, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, y + size - 8, x + size - 5, y + size - 5, fill="black")
+            draw_enhanced_dot(x + 6, y + 6)
+            draw_enhanced_dot(x + size - 6, y + 6)
+            draw_enhanced_dot(center_x, center_y)
+            draw_enhanced_dot(x + 6, y + size - 6)
+            draw_enhanced_dot(x + size - 6, y + size - 6)
         elif value == 6:
-            self.dice_canvas.create_oval(x + 5, y + 5, x + 8, y + 8, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, y + 5, x + size - 5, y + 8, fill="black")
-            self.dice_canvas.create_oval(x + 5, center_y - 1, x + 8, center_y + 2, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, center_y - 1, x + size - 5, center_y + 2, fill="black")
-            self.dice_canvas.create_oval(x + 5, y + size - 8, x + 8, y + size - 5, fill="black")
-            self.dice_canvas.create_oval(x + size - 8, y + size - 8, x + size - 5, y + size - 5, fill="black")
+            draw_enhanced_dot(x + 6, y + 6)
+            draw_enhanced_dot(x + size - 6, y + 6)
+            draw_enhanced_dot(x + 6, center_y)
+            draw_enhanced_dot(x + size - 6, center_y)
+            draw_enhanced_dot(x + 6, y + size - 6)
+            draw_enhanced_dot(x + size - 6, y + size - 6)
     
     def update_dice_display(self, die1: int, die2: int, total: int):
         """Update dice display with actual roll results"""
@@ -412,36 +496,72 @@ class ActionControlPanel:
         info_text = f"{current_player}'s turn - {phase_text.get(phase, phase)}"
         self.turn_info_label.config(text=info_text)
     
-    def set_roll_enabled(self, enabled: bool):
-        """Enable or disable roll dice button"""
-        state = "normal" if enabled else "disabled"
-        self.roll_button.config(state=state)
+    def _add_button_hover_effects(self, button, normal_color):
+        """Add hover effects to button"""
+        hover_color = lighten_color(normal_color, 0.9)
         
+        def on_enter(event):
+            if button['state'] == 'normal':
+                button.config(bg=hover_color, relief="raised", bd=4)
+        
+        def on_leave(event):
+            if button['state'] == 'normal':
+                button.config(bg=normal_color, relief="raised", bd=3)
+        
+        def on_click(event):
+            if button['state'] == 'normal':
+                button.config(relief="sunken", bd=2)
+                button.after(100, lambda: button.config(relief="raised", bd=3))
+        
+        button.bind("<Enter>", on_enter)
+        button.bind("<Leave>", on_leave)  
+        button.bind("<Button-1>", on_click)
+    
+    def set_roll_enabled(self, enabled: bool):
+        """Enable or disable roll dice button with enhanced visual feedback"""
         if enabled:
-            self.roll_button.config(bg=UI_COLORS["button_primary"])
+            self.roll_button.config(
+                state="normal",
+                bg=UI_COLORS["button_primary"],
+                fg="white",
+                cursor="hand2"
+            )
         else:
-            self.roll_button.config(bg=UI_COLORS["button_disabled"])
+            self.roll_button.config(
+                state="disabled",
+                bg=UI_COLORS["button_disabled"],
+                fg=UI_COLORS["text_secondary"],
+                cursor="arrow"
+            )
     
     def _enable_purchase_buttons(self):
-        """Enable purchase-related buttons"""
+        """Enable purchase-related buttons with enhanced visual feedback"""
         self.buy_button.config(
             state="normal",
-            bg=UI_COLORS["button_secondary"]
+            bg=UI_COLORS["button_secondary"],
+            fg="white",
+            cursor="hand2"
         )
         self.skip_button.config(
             state="normal",
-            bg=UI_COLORS["button_primary"]
+            bg=UI_COLORS["button_primary"],
+            fg="white",
+            cursor="hand2"
         )
     
     def _disable_purchase_buttons(self):
-        """Disable purchase-related buttons"""
+        """Disable purchase-related buttons with enhanced visual feedback"""
         self.buy_button.config(
             state="disabled",
-            bg=UI_COLORS["button_disabled"]
+            bg=UI_COLORS["button_disabled"],
+            fg=UI_COLORS["text_secondary"],
+            cursor="arrow"
         )
         self.skip_button.config(
             state="disabled",
-            bg=UI_COLORS["button_disabled"]
+            bg=UI_COLORS["button_disabled"],
+            fg=UI_COLORS["text_secondary"],
+            cursor="arrow"
         )
     
     def get_frame(self):
@@ -498,54 +618,137 @@ class PropertyDetailsPanel:
         self.details_text.pack(fill="both", expand=True)
         
     def update_property_info(self, property_data: Dict):
-        """Update property information display"""
+        """Update property information display with comprehensive details"""
         if not property_data:
             self.name_label.config(text="No property selected")
             self._update_details_text("Click on a property to see details")
             return
         
         # Update property name
-        self.name_label.config(text=property_data.get("name", "Unknown"))
+        property_name = property_data.get("name", "Unknown")
+        self.name_label.config(text=property_name)
         
-        # Build details text
+        # Build comprehensive details text
         details = []
         
-        if property_data.get("cost") != "N/A":
-            details.append(f"Cost: ${property_data.get('cost', 0)}")
+        # Property type and basic info
+        property_type = self._determine_property_type(property_name, property_data.get("color_group", "N/A"))
+        details.append(f"Type: {property_type}")
         
+        # Purchase cost
+        cost = property_data.get("cost", "N/A")
+        if cost != "N/A":
+            details.append(f"Purchase Cost: ${cost}")
+            
+            # Mortgage value (usually half of cost)
+            try:
+                mortgage_value = int(cost) // 2
+                details.append(f"Mortgage Value: ${mortgage_value}")
+            except (ValueError, TypeError):
+                pass
+        
+        # Color group information
         color_group = property_data.get("color_group", "N/A")
         if color_group != "N/A":
-            details.append(f"Group: {color_group}")
+            details.append(f"Color Group: {color_group}")
+            
+            # Group completion info
+            group_properties = self._get_group_property_count(color_group)
+            if group_properties:
+                details.append(f"Properties in group: {group_properties}")
         
+        # Ownership information
         owner = property_data.get("owner", "Bank")
         if owner == "Bank":
-            details.append("Owner: Available for purchase")
+            details.append("\n🏛️ AVAILABLE FOR PURCHASE")
         else:
-            details.append(f"Owner: {owner}")
+            details.append(f"\n👤 Owner: {owner}")
+            
+            # Property status
+            if property_data.get("mortgaged", False):
+                details.append("📋 Status: MORTGAGED")
+            else:
+                details.append("📋 Status: Active")
         
-        if property_data.get("mortgaged", False):
-            details.append("Status: MORTGAGED")
+        # Development information
+        houses = property_data.get("houses", 0)
+        if isinstance(houses, int) and houses > 0:
+            details.append("\n🏗️ DEVELOPMENT:")
+            if houses == 5:
+                details.append("🏨 Hotel built")
+            else:
+                house_text = "house" if houses == 1 else "houses"
+                details.append(f"🏠 {houses} {house_text} built")
         
+        # Rent structure
         rent_info = property_data.get("rent", {})
         if rent_info and isinstance(rent_info, dict):
-            details.append("\nRent:")
-            for houses, rent in rent_info.items():
-                if houses == 0:
-                    details.append(f"  Base: ${rent}")
-                elif houses == 5:
-                    details.append(f"  Hotel: ${rent}")
-                else:
-                    details.append(f"  {houses} houses: ${rent}")
+            details.append("\n💰 RENT STRUCTURE:")
+            rent_items = sorted(rent_info.items()) if isinstance(rent_info, dict) else []
+            
+            for houses_count, rent_amount in rent_items:
+                if houses_count == 0:
+                    details.append(f"  Base rent: ${rent_amount}")
+                elif houses_count == 1:
+                    details.append(f"  With 1 house: ${rent_amount}")
+                elif houses_count == 2:
+                    details.append(f"  With 2 houses: ${rent_amount}")
+                elif houses_count == 3:
+                    details.append(f"  With 3 houses: ${rent_amount}")
+                elif houses_count == 4:
+                    details.append(f"  With 4 houses: ${rent_amount}")
+                elif houses_count == 5:
+                    details.append(f"  With hotel: ${rent_amount}")
         
-        houses = property_data.get("houses", 0)
-        # Handle cases where houses might be "N/A" or other non-integer values
-        if isinstance(houses, int) and houses > 0:
-            if houses == 5:
-                details.append(f"\n🏨 Hotel built")
-            else:
-                details.append(f"\n🏠 {houses} house{'s' if houses != 1 else ''}")
+        # Special property information
+        if property_type == "Railroad":
+            details.append("\n🚂 RAILROAD SPECIAL RULES:")
+            details.append("  Rent depends on # owned:")
+            details.append("  1 railroad: $25")
+            details.append("  2 railroads: $50") 
+            details.append("  3 railroads: $100")
+            details.append("  4 railroads: $200")
+        elif property_type == "Utility":
+            details.append("\n⚡ UTILITY SPECIAL RULES:")
+            details.append("  Rent = dice roll × multiplier")
+            details.append("  1 utility: 4× dice roll")
+            details.append("  2 utilities: 10× dice roll")
         
         self._update_details_text("\n".join(details))
+    
+    def _determine_property_type(self, name: str, color_group: str) -> str:
+        """Determine the display type of property"""
+        name_upper = name.upper()
+        if "RAILROAD" in name_upper:
+            return "Railroad"
+        elif "ELECTRIC" in name_upper or "WATER" in name_upper:
+            return "Utility"
+        elif "TAX" in name_upper:
+            return "Tax Space"
+        elif "CHANCE" in name_upper:
+            return "Chance"
+        elif "COMMUNITY CHEST" in name_upper:
+            return "Community Chest"
+        elif name_upper in ["GO", "JAIL", "FREE PARKING", "GO TO JAIL"]:
+            return "Special Space"
+        else:
+            return "Property"
+    
+    def _get_group_property_count(self, color_group: str) -> str:
+        """Get the number of properties in a color group"""
+        group_counts = {
+            "Brown": "2 properties",
+            "Light Blue": "3 properties",
+            "Pink": "3 properties", 
+            "Orange": "3 properties",
+            "Red": "3 properties",
+            "Yellow": "3 properties",
+            "Green": "3 properties",
+            "Blue": "2 properties",
+            "Railroad": "4 railroads",
+            "Utilities": "2 utilities"
+        }
+        return group_counts.get(color_group, "")
     
     def _update_details_text(self, text: str):
         """Update the details text widget"""

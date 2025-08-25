@@ -42,11 +42,17 @@ class BoardCanvas:
         # Animation tracking
         self.animations = {}  # player_name -> animation_data
         
+        # Property highlighting
+        self.highlighted_property = None
+        self.selected_property = None
+        
         # Draw initial board
         self._draw_board()
         
-        # Bind click events
+        # Bind click and hover events
         self.canvas.bind("<Button-1>", self._on_canvas_click)
+        self.canvas.bind("<Motion>", self._on_canvas_hover)
+        self.canvas.bind("<Leave>", self._on_canvas_leave)
         
     def _calculate_property_positions(self) -> List[Dict]:
         """
@@ -195,8 +201,80 @@ class BoardCanvas:
             tags=f"property_{position}"
         )
         
-        # Add price for purchasable properties
-        if hasattr(card, 'card_cost') and card.card_cost != "N/A":
+        # Add special symbols and pricing
+        self._add_property_symbols_and_price(card, x, y, width, height, text_x, text_y, is_corner, position)
+    
+    def _add_property_symbols_and_price(self, card, x, y, width, height, text_x, text_y, is_corner, position):
+        """Add special symbols and price information for properties"""
+        
+        # Determine property type and add appropriate symbols
+        property_type = self._get_property_type(card.card_name, getattr(card, 'color_group', 'N/A'))
+        
+        # Position for symbols (above text)
+        symbol_y = text_y - 20 if not is_corner else text_y - 25
+        
+        if property_type == 'railroad':
+            # Add railroad symbol
+            self.canvas.create_text(
+                text_x, symbol_y,
+                text="🚂",
+                font=("Arial", 16, "normal"),
+                fill=UI_COLORS["text_primary"],
+                tags=f"property_{position}"
+            )
+        elif property_type == 'utility':
+            # Add utility symbol based on specific utility
+            symbol = "⚡" if "Electric" in card.card_name else "💧"
+            self.canvas.create_text(
+                text_x, symbol_y,
+                text=symbol,
+                font=("Arial", 16, "normal"),
+                fill=UI_COLORS["text_primary"],
+                tags=f"property_{position}"
+            )
+        elif property_type == 'tax':
+            # Add tax symbol
+            self.canvas.create_text(
+                text_x, symbol_y,
+                text="💰",
+                font=("Arial", 14, "normal"),
+                fill=UI_COLORS["text_error"],
+                tags=f"property_{position}"
+            )
+            
+            # For tax spaces, show the tax amount instead of purchase price
+            tax_amount = "$200" if "Income" in card.card_name else "$75"
+            price_y = text_y + 15 if is_corner else text_y + 12
+            self.canvas.create_text(
+                text_x, price_y,
+                text=tax_amount,
+                font=("Arial", 8, "bold"),
+                fill=UI_COLORS["text_error"],
+                tags=f"property_{position}"
+            )
+            return  # Early return for tax spaces
+        
+        elif property_type == 'chance':
+            # Add chance symbol
+            self.canvas.create_text(
+                text_x, symbol_y,
+                text="?",
+                font=("Arial", 20, "bold"),
+                fill="white",
+                tags=f"property_{position}"
+            )
+        elif property_type == 'community_chest':
+            # Add community chest symbol
+            self.canvas.create_text(
+                text_x, symbol_y,
+                text="📦",
+                font=("Arial", 14, "normal"),
+                fill=UI_COLORS["text_primary"],
+                tags=f"property_{position}"
+            )
+        
+        # Add price for purchasable properties (not tax spaces)
+        if hasattr(card, 'card_cost') and card.card_cost != "N/A" and property_type not in ['tax', 'chance', 'community_chest']:
             price_y = text_y + 15 if is_corner else text_y + 12
             self.canvas.create_text(
                 text_x, price_y,
@@ -205,6 +283,25 @@ class BoardCanvas:
                 fill=UI_COLORS["text_highlight"],
                 tags=f"property_{position}"
             )
+    
+    def _get_property_type(self, name: str, color_group: str) -> str:
+        """Determine the type of property based on name and color group"""
+        name_upper = name.upper()
+        
+        if "RAILROAD" in name_upper or color_group == "Railroad":
+            return 'railroad'
+        elif "ELECTRIC" in name_upper or "WATER" in name_upper or color_group == "Utilities":
+            return 'utility'
+        elif "TAX" in name_upper:
+            return 'tax'
+        elif "CHANCE" in name_upper:
+            return 'chance'
+        elif "COMMUNITY CHEST" in name_upper:
+            return 'community_chest'
+        elif name_upper in ["GO", "JAIL", "FREE PARKING", "GO TO JAIL"]:
+            return 'corner'
+        else:
+            return 'property'
     
     def _get_corner_color(self, name: str) -> str:
         """Get color for corner spaces"""
@@ -231,52 +328,192 @@ class BoardCanvas:
             return UI_COLORS["background"]
     
     def _format_property_name(self, name: str, max_width: int) -> str:
-        """Format property name to fit in space"""
-        if len(name) <= 12:
+        """Format property name to fit in space with intelligent word wrapping"""
+        # Short names don't need formatting
+        if len(name) <= 10:
             return name
         
-        # Split long names into multiple lines
+        # Handle specific known long property names with good breaks
+        name_overrides = {
+            "Mediterranean Avenue": "Mediterranean\nAvenue",
+            "Baltic Avenue": "Baltic\nAvenue", 
+            "Oriental Avenue": "Oriental\nAvenue",
+            "Vermont Avenue": "Vermont\nAvenue",
+            "Connecticut Avenue": "Connecticut\nAvenue",
+            "St. Charles Place": "St. Charles\nPlace",
+            "Electric Company": "Electric\nCompany",
+            "States Avenue": "States\nAvenue",
+            "Virginia Avenue": "Virginia\nAvenue",
+            "St. James Place": "St. James\nPlace",
+            "Tennessee Avenue": "Tennessee\nAvenue",
+            "New York Avenue": "New York\nAvenue",
+            "Kentucky Avenue": "Kentucky\nAvenue",
+            "Indiana Avenue": "Indiana\nAvenue",
+            "Illinois Avenue": "Illinois\nAvenue",
+            "Atlantic Avenue": "Atlantic\nAvenue",
+            "Ventnor Avenue": "Ventnor\nAvenue",
+            "Water Works": "Water\nWorks",
+            "Marvin Gardens": "Marvin\nGardens",
+            "Pacific Avenue": "Pacific\nAvenue",
+            "North Carolina Avenue": "N. Carolina\nAvenue",
+            "Pennsylvania Avenue": "Pennsylvania\nAvenue",
+            "Park Place": "Park\nPlace",
+            "Pennsylvania Railroad": "Pennsylvania\nRailroad",
+            "Reading Railroad": "Reading\nRailroad",
+            "B. & O. Railroad": "B. & O.\nRailroad",
+            "Short Line": "Short\nLine"
+        }
+        
+        if name in name_overrides:
+            return name_overrides[name]
+        
+        # General algorithm for other names
         words = name.split()
-        if len(words) > 1:
+        if len(words) == 1:
+            # Single word - try to break at reasonable point or truncate
+            if len(name) > 12:
+                return name[:9] + "..."
+            return name
+        
+        # Multiple words - find best break point
+        if len(words) == 2:
+            return f"{words[0]}\n{words[1]}"
+        
+        # For 3+ words, try to balance line lengths
+        total_length = len(name)
+        if total_length <= 16:
+            # Try to fit in 2 lines with good balance
             mid = len(words) // 2
-            return "\n".join([" ".join(words[:mid]), " ".join(words[mid:])])
-        else:
-            # Single long word - truncate with ellipsis
-            return name[:10] + "..." if len(name) > 10 else name
+            line1 = " ".join(words[:mid])
+            line2 = " ".join(words[mid:])
+            
+            # Adjust if lines are very unbalanced
+            if abs(len(line1) - len(line2)) > 4 and len(words) > 2:
+                if len(line1) > len(line2):
+                    # Move one word from line1 to line2
+                    if mid > 1:
+                        line1 = " ".join(words[:mid-1])
+                        line2 = " ".join(words[mid-1:])
+                else:
+                    # Move one word from line2 to line1
+                    if mid < len(words) - 1:
+                        line1 = " ".join(words[:mid+1])
+                        line2 = " ".join(words[mid+1:])
+            
+            return f"{line1}\n{line2}"
+        
+        # Very long names - abbreviate
+        if "Avenue" in name:
+            name = name.replace("Avenue", "Ave")
+        if "Street" in name:
+            name = name.replace("Street", "St")
+        if "Place" in name:
+            name = name.replace("Place", "Pl")
+        
+        return self._format_property_name(name, max_width)  # Retry with abbreviations
     
     def add_player(self, player_name: str, player_index: int, position: int = 0):
         """
-        Add a player token to the board
+        Add a player token to the board with distinct shapes
         :param player_name: Name of the player
-        :param player_index: Index for color assignment
+        :param player_index: Index for color assignment and shape
         :param position: Starting position (default 0 for GO)
         """
         color = get_player_color(player_index)
         token_pos = self._get_token_position(position, len(self.player_tokens))
         
-        token_id = self.canvas.create_oval(
-            token_pos[0] - SIZES["token_size"],
-            token_pos[1] - SIZES["token_size"],
-            token_pos[0] + SIZES["token_size"],
-            token_pos[1] + SIZES["token_size"],
-            fill=color,
-            outline=darken_color(color),
-            width=2,
-            tags=f"token_{player_name}"
-        )
-        
-        # Add player initial
-        initial = player_name[0].upper()
-        self.canvas.create_text(
-            token_pos[0], token_pos[1],
-            text=initial,
-            font=("Arial", 8, "bold"),
-            fill="white",
-            tags=f"token_{player_name}"
-        )
+        # Create token shape based on player index
+        token_id = self._create_player_token(token_pos[0], token_pos[1], player_index, color, player_name)
         
         self.player_tokens[player_name] = token_id
         self.player_positions[player_name] = position
+    
+    def _create_player_token(self, x: int, y: int, player_index: int, color: str, player_name: str) -> int:
+        """Create a distinct token shape for each player"""
+        size = SIZES["token_size"]
+        outline_color = darken_color(color)
+        
+        # Different shapes for each player
+        if player_index == 0:  # Circle (traditional)
+            token_id = self.canvas.create_oval(
+                x - size, y - size, x + size, y + size,
+                fill=color, outline=outline_color, width=3,
+                tags=f"token_{player_name}"
+            )
+        elif player_index == 1:  # Square
+            token_id = self.canvas.create_rectangle(
+                x - size, y - size, x + size, y + size,
+                fill=color, outline=outline_color, width=3,
+                tags=f"token_{player_name}"
+            )
+        elif player_index == 2:  # Diamond
+            points = [x, y - size, x + size, y, x, y + size, x - size, y]
+            token_id = self.canvas.create_polygon(
+                points,
+                fill=color, outline=outline_color, width=3,
+                tags=f"token_{player_name}"
+            )
+        elif player_index == 3:  # Triangle
+            points = [x, y - size, x + size, y + size, x - size, y + size]
+            token_id = self.canvas.create_polygon(
+                points,
+                fill=color, outline=outline_color, width=3,
+                tags=f"token_{player_name}"
+            )
+        elif player_index == 4:  # Hexagon
+            import math
+            points = []
+            for i in range(6):
+                angle = i * math.pi / 3
+                px = x + size * math.cos(angle)
+                py = y + size * math.sin(angle)
+                points.extend([px, py])
+            token_id = self.canvas.create_polygon(
+                points,
+                fill=color, outline=outline_color, width=3,
+                tags=f"token_{player_name}"
+            )
+        else:  # Star for additional players
+            import math
+            points = []
+            for i in range(10):
+                angle = i * math.pi / 5
+                radius = size if i % 2 == 0 else size * 0.5
+                px = x + radius * math.cos(angle - math.pi/2)
+                py = y + radius * math.sin(angle - math.pi/2)
+                points.extend([px, py])
+            token_id = self.canvas.create_polygon(
+                points,
+                fill=color, outline=outline_color, width=2,
+                tags=f"token_{player_name}"
+            )
+        
+        # Add player initial or symbol
+        text_color = "white" if self._is_dark_color(color) else "black"
+        initial = player_name[0].upper() if player_name != "AI" else "🤖"
+        self.canvas.create_text(
+            x, y,
+            text=initial,
+            font=("Arial", 9, "bold"),
+            fill=text_color,
+            tags=f"token_{player_name}"
+        )
+        
+        return token_id
+    
+    def _is_dark_color(self, color: str) -> bool:
+        """Check if a color is dark (for text contrast)"""
+        # Remove # if present
+        color = color.lstrip('#')
+        
+        # Convert to RGB
+        r = int(color[0:2], 16)
+        g = int(color[2:4], 16) 
+        b = int(color[4:6], 16)
+        
+        # Calculate perceived brightness
+        brightness = (r * 299 + g * 587 + b * 114) / 1000
+        return brightness < 128
     
     def _get_token_position(self, board_position: int, token_offset: int = 0) -> Tuple[int, int]:
         """
@@ -436,15 +673,103 @@ class BoardCanvas:
             )
     
     def _on_canvas_click(self, event):
-        """Handle canvas click events"""
+        """Handle canvas click events with visual feedback"""
         x, y = event.x, event.y
         
         # Find which property was clicked
+        clicked_position = self._get_property_at_position(x, y)
+        
+        if clicked_position is not None:
+            # Update selection
+            self._set_selected_property(clicked_position)
+            
+            # Call the callback
+            self.on_property_click(clicked_position)
+    
+    def _on_canvas_hover(self, event):
+        """Handle canvas hover for property highlighting"""
+        x, y = event.x, event.y
+        
+        # Find which property is being hovered over
+        hovered_position = self._get_property_at_position(x, y)
+        
+        if hovered_position != self.highlighted_property:
+            self._set_highlighted_property(hovered_position)
+    
+    def _on_canvas_leave(self, event):
+        """Handle canvas leave to remove hover effects"""
+        self._set_highlighted_property(None)
+    
+    def _get_property_at_position(self, x: int, y: int) -> Optional[int]:
+        """Get property position at pixel coordinates"""
         for position, pos_data in enumerate(self.property_positions):
             if (pos_data["x"] <= x <= pos_data["x"] + pos_data["width"] and
                 pos_data["y"] <= y <= pos_data["y"] + pos_data["height"]):
-                self.on_property_click(position)
-                break
+                return position
+        return None
+    
+    def _set_highlighted_property(self, position: Optional[int]):
+        """Set the highlighted property with visual feedback"""
+        # Clear previous highlight
+        if self.highlighted_property is not None:
+            self._remove_property_highlight(self.highlighted_property)
+        
+        # Set new highlight
+        self.highlighted_property = position
+        if position is not None:
+            self._add_property_highlight(position, "hover")
+    
+    def _set_selected_property(self, position: Optional[int]):
+        """Set the selected property with visual feedback"""
+        # Clear previous selection
+        if self.selected_property is not None:
+            self._remove_property_selection(self.selected_property)
+        
+        # Set new selection
+        self.selected_property = position
+        if position is not None:
+            self._add_property_selection(position)
+    
+    def _add_property_highlight(self, position: int, highlight_type: str = "hover"):
+        """Add visual highlight to property"""
+        pos_data = self.property_positions[position]
+        
+        # Choose highlight color based on type
+        if highlight_type == "hover":
+            color = UI_COLORS["text_highlight"]
+            width = 3
+            tag_suffix = "hover"
+        else:
+            color = UI_COLORS["text_success"]
+            width = 4
+            tag_suffix = "select"
+        
+        # Draw highlight border
+        self.canvas.create_rectangle(
+            pos_data["x"] - 2, pos_data["y"] - 2,
+            pos_data["x"] + pos_data["width"] + 2,
+            pos_data["y"] + pos_data["height"] + 2,
+            outline=color,
+            width=width,
+            fill="",
+            tags=f"highlight_{tag_suffix}_{position}"
+        )
+    
+    def _remove_property_highlight(self, position: int):
+        """Remove visual highlight from property"""
+        self.canvas.delete(f"highlight_hover_{position}")
+    
+    def _add_property_selection(self, position: int):
+        """Add visual selection to property"""
+        self._add_property_highlight(position, "select")
+    
+    def _remove_property_selection(self, position: int):
+        """Remove visual selection from property"""
+        self.canvas.delete(f"highlight_select_{position}")
+    
+    def clear_property_selection(self):
+        """Clear the current property selection"""
+        self._set_selected_property(None)
     
     def get_canvas(self):
         """Return the tkinter Canvas widget"""

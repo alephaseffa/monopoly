@@ -39,8 +39,8 @@ UI_COLORS = {
     "text_success": "#228B22",         # Forest green for success messages
     "text_error": "#DC143C",           # Crimson for error messages
     
-    # Player colors
-    "player_colors": ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD"],
+    # Player colors - distinct, high-contrast colors for better visibility
+    "player_colors": ["#FF6B6B", "#4CAF50", "#2196F3", "#FF9800", "#9C27B0", "#795548"],
     
     # Special spaces
     "go_color": "#FFD700",             # Gold for GO space
