@@ -9,6 +9,7 @@ This includes:
     - Chance information
 """
 from classes import card_definitions as c_def
+from classes.chance_cards import ChanceDeck, CHANCE_CARDS
 
 
 # card_name, color_group, card_cost, house_cost, houses_built, rent_prices, mortgage_amt, owner, mortgaged
@@ -42,7 +43,7 @@ def initialize_cards_and_board():
                                                                             3: 270,
                                                                             4: 400,
                                                                             5: 550}, 50, "Bank", False)
-    chance = c_def.Card("Community Chest", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "Bank", False)
+    chance = c_def.Card("Chance", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "Bank", False)
     vermont_ave = c_def.Card("Vermont Avenue", "Light Blue", 100, 50, 0, {0: 6,
                                                                           1: 30,
                                                                           2: 90,
@@ -104,7 +105,7 @@ def initialize_cards_and_board():
                                                                       3: 700,
                                                                       4: 875,
                                                                       5: 1050}, 110, "Bank", False)
-    # chance
+    chance2 = c_def.Card("Chance", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "Bank", False)
     indiana_ave = c_def.Card("Indiana Avenue", "Red", 220, 150, 0, {0: 18,
                                                                     1: 90,
                                                                     2: 250,
@@ -159,7 +160,7 @@ def initialize_cards_and_board():
                                                                         4: 1200,
                                                                         5: 1400}, 160, "Bank", False)
     short_line_rr = c_def.Card("Short Line", "Railroad", 200, "N/A", "N/A", "N/A", 100, "Bank", False)
-    # chance
+    chance3 = c_def.Card("Chance", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "Bank", False)
     park_place = c_def.Card("Park Place", "Blue", 350, 200, 0, {0: 35,
                                                                 1: 175,
                                                                 2: 500,
@@ -197,7 +198,7 @@ def initialize_cards_and_board():
         ny_ave,
         free_parking,
         kentucky_ave,
-        chance,
+        chance2,
         indiana_ave,
         illinois_ave,
         bno_rr,
@@ -211,13 +212,21 @@ def initialize_cards_and_board():
         comm_chest,
         penn_ave,
         short_line_rr,
-        chance,
+        chance3,
         park_place,
         luxury_tax,
         boardwalk
     ]
 
     return board
+
+
+def initialize_chance_deck():
+    """
+    Creates and returns a shuffled Chance card deck.
+    :return: ChanceDeck instance with all chance cards
+    """
+    return ChanceDeck(CHANCE_CARDS)
 
 
 def display_instructions() -> None:

@@ -11,6 +11,7 @@ from game import information as info
 from ai import ai
 
 board = info.initialize_cards_and_board()
+chance_deck = info.initialize_chance_deck()
 
 Aleph = p_def.Player("Aleph", 1500, [], 0, False, 0, 0, 0, False)
 Yah = p_def.Player("Yah", 1500, [], 0, False, 0, 0, 0, False)
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         print(f"{player_list[i].name}'s turn:")
 
         if player_list[i].name == "AI":
-            ai.move(Computer, board)
+            ai.move(Computer, board, chance_deck)
 
         else:
             user_choice = input("What do you want to do? ")
@@ -64,7 +65,7 @@ if __name__ == "__main__":
                 user_choice = input("What do you want to do? ")
                 result = player_list[i].player_action(user_choice, player_list, Computer, board)
             new_pos = player_list[i].move_player(result)
-            player_list[i].check_pos(board)
+            player_list[i].check_pos(board, chance_deck)
 
         i += 1
 

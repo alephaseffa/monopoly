@@ -20,6 +20,7 @@ class Player:
         self.doubles_counter = doubles_counter      # int
         self.amount_owed = amount_owed              # int
         self.bankruptcy_status = bankruptcy_status  # bool
+        self.get_out_of_jail_cards = []             # list of Get Out of Jail Free cards
 
     def roll_dice(self):  # TODO: add check for doubles.
         """
@@ -42,10 +43,11 @@ class Player:
         self.current_pos += dice_amt
         return self.current_pos
 
-    def check_pos(self, board):
+    def check_pos(self, board, chance_deck=None):
         """
         Checks what card the player has landed on and carries out the appropriate action.
         :param board: list, the monopoly board.
+        :param chance_deck: ChanceDeck instance for drawing chance cards.
         :return: None
         """
         self.current_pos = self.current_pos % 40
@@ -67,6 +69,14 @@ class Player:
             elif brd_property.card_name == 'Go to Jail':
                 print(f"{self.name} landed on Go to Jail and has been arrested!")
                 self.send_to_jail()
+
+            elif brd_property.card_name == 'Chance' or brd_property.card_name == 'Community Chest':
+                print(f"{self.name} landed on {brd_property.card_name}")
+                if brd_property.card_name == 'Chance' and chance_deck:
+                    card = chance_deck.draw()
+                    card.execute(self, board)
+                elif brd_property.card_name == 'Community Chest':
+                    print("Community Chest cards not yet implemented")
 
             else:
                 print(f"{self.name} landed on {brd_property.card_name}")
@@ -225,6 +235,19 @@ class Player:
         :return: None.
         """
         self.doubles_counter = 0
+        
+        # Check if player has Get Out of Jail Free card
+        if self.get_out_of_jail_cards:
+            use_card = input("Would you like to use a Get Out of Jail Free card? (y/n) ")
+            if use_card == "y":
+                card = self.get_out_of_jail_cards.pop()
+                # Return card to chance deck (would need deck reference)
+                print(f"{self.name} uses Get Out of Jail Free card!")
+                self.in_jail = False
+                dice_result = self.roll_dice()
+                self.move_player(dice_result)
+                return
+        
         bail_choice = input("Would you like to pay the $50 bail? (y/n) ")
         if bail_choice == "y":
             self.reduce_balance(50)
