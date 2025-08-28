@@ -15,10 +15,10 @@ from typing import Dict, Any
 # Add parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from .colors import *
-from .board_canvas import BoardCanvas
-from .game_controller import GameController
-from .ui_panels import PlayerInfoPanel, ActionControlPanel, PropertyDetailsPanel, GameLogPanel
+import colors
+from authentic_board import AuthenticMonopolyBoard
+from game_controller import GameController
+from ui_panels import PlayerInfoPanel, ActionControlPanel, PropertyDetailsPanel, GameLogPanel
 
 class MonopolyGUI:
     """Main Monopoly GUI Application"""
@@ -28,8 +28,8 @@ class MonopolyGUI:
         # Create main window
         self.root = tk.Tk()
         self.root.title("Monopoly Game")
-        self.root.geometry(f"{SIZES['window_width']}x{SIZES['window_height']}")
-        self.root.bg = UI_COLORS["background"]
+        self.root.geometry(f"{colors.SIZES['window_width']}x{colors.SIZES['window_height']}")
+        self.root.bg = colors.UI_COLORS["background"]
         self.root.resizable(True, True)
         
         # Initialize game controller
@@ -63,22 +63,22 @@ class MonopolyGUI:
     def _create_main_layout(self):
         """Create the main GUI layout"""
         # Main container
-        main_frame = tk.Frame(self.root, bg=UI_COLORS["background"])
+        main_frame = tk.Frame(self.root, bg=colors.UI_COLORS["background"])
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
         
         # Left panel (board)
-        left_frame = tk.Frame(main_frame, bg=UI_COLORS["background"])
+        left_frame = tk.Frame(main_frame, bg=colors.UI_COLORS["background"])
         left_frame.pack(side="left", fill="both", expand=True)
         
         # Board canvas
-        self.board_canvas = BoardCanvas(
+        self.board_canvas = AuthenticMonopolyBoard(
             left_frame, 
             self.game_controller.board,
             on_property_click=self._on_property_click
         )
         
         # Right panel (controls and info)
-        right_frame = tk.Frame(main_frame, bg=UI_COLORS["background"], width=SIZES["panel_width"])
+        right_frame = tk.Frame(main_frame, bg=colors.UI_COLORS["background"], width=colors.SIZES["panel_width"])
         right_frame.pack(side="right", fill="y", padx=(10, 0))
         right_frame.pack_propagate(False)  # Maintain fixed width
         
@@ -140,7 +140,7 @@ class MonopolyGUI:
         """Initialize UI components with game data"""
         # Add player tokens to board
         for i, player in enumerate(self.game_controller.players):
-            self.board_canvas.add_player(player.name, i, player.current_pos)
+            self.board_canvas.add_player_token(player.name, i)
         
         # Update initial property info (show GO space)
         go_property = self.game_controller.get_property_info(0)

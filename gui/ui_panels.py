@@ -10,7 +10,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Dict, List, Callable, Any, Optional
 import random
-from .colors import *
+import colors
 
 class PlayerInfoPanel:
     """Panel showing information about all players"""
@@ -26,21 +26,21 @@ class PlayerInfoPanel:
         self.on_player_selected = on_player_selected
         
         # Create main frame
-        self.frame = tk.Frame(parent, bg=UI_COLORS["panel_background"], relief="raised", bd=2)
+        self.frame = tk.Frame(parent, bg=colors.UI_COLORS["panel_background"], relief="raised", bd=2)
         
         # Title
         title = tk.Label(
             self.frame,
             text="PLAYERS",
-            font=FONTS["title"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"]
+            font=colors.FONTS["title"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"]
         )
         title.pack(pady=5)
         
         # Player widgets container
         self.player_widgets = {}
-        self.players_frame = tk.Frame(self.frame, bg=UI_COLORS["panel_background"])
+        self.players_frame = tk.Frame(self.frame, bg=colors.UI_COLORS["panel_background"])
         self.players_frame.pack(fill="x", padx=10, pady=5)
         
         # Initialize player displays
@@ -74,9 +74,9 @@ class PlayerInfoPanel:
         name_label = tk.Label(
             name_frame,
             text=player_name,
-            font=FONTS["player"],
+            font=colors.FONTS["player"],
             bg=lighten_color(player_color, 0.8),
-            fg=UI_COLORS["text_primary"]
+            fg=colors.UI_COLORS["text_primary"]
         )
         name_label.pack(side="left")
         
@@ -86,7 +86,7 @@ class PlayerInfoPanel:
             text="►",
             font=("Arial", 12, "bold"),
             bg=lighten_color(player_color, 0.8),
-            fg=UI_COLORS["text_highlight"]
+            fg=colors.UI_COLORS["text_highlight"]
         )
         current_indicator.pack(side="right")
         current_indicator.pack_forget()  # Initially hidden
@@ -99,9 +99,9 @@ class PlayerInfoPanel:
         balance_label = tk.Label(
             stats_frame,
             text=f"Balance: ${player_data['balance']}",
-            font=FONTS["status"],
+            font=colors.FONTS["status"],
             bg=lighten_color(player_color, 0.8),
-            fg=UI_COLORS["text_primary"]
+            fg=colors.UI_COLORS["text_primary"]
         )
         balance_label.pack(anchor="w")
         
@@ -109,9 +109,9 @@ class PlayerInfoPanel:
         properties_label = tk.Label(
             stats_frame,
             text=f"Properties: {player_data['properties']}",
-            font=FONTS["status"],
+            font=colors.FONTS["status"],
             bg=lighten_color(player_color, 0.8),
-            fg=UI_COLORS["text_secondary"]
+            fg=colors.UI_COLORS["text_secondary"]
         )
         properties_label.pack(anchor="w")
         
@@ -124,7 +124,7 @@ class PlayerInfoPanel:
             text="",
             font=("Arial", 9, "normal"),
             bg=lighten_color(player_color, 0.8),
-            fg=UI_COLORS["text_error"]
+            fg=colors.UI_COLORS["text_error"]
         )
         jail_status.pack(side="left")
         
@@ -163,7 +163,7 @@ class PlayerInfoPanel:
         
         # Update frame color if bankrupt
         if player_data.get("bankrupt", False):
-            widgets["frame"].config(bg=UI_COLORS["button_disabled"])
+            widgets["frame"].config(bg=colors.UI_COLORS["button_disabled"])
     
     def set_current_player(self, player_name: str):
         """Highlight the current player with enhanced visual feedback"""
@@ -204,7 +204,7 @@ class PlayerInfoPanel:
             try:
                 # Toggle between normal and highlighted
                 current_color = indicator_widget.cget("fg")
-                new_color = UI_COLORS["text_highlight"] if current_color != UI_COLORS["text_highlight"] else UI_COLORS["text_success"]
+                new_color = colors.UI_COLORS["text_highlight"] if current_color != colors.UI_COLORS["text_highlight"] else colors.UI_COLORS["text_success"]
                 indicator_widget.config(fg=new_color)
                 # Schedule next pulse
                 indicator_widget.after(800, pulse)
@@ -236,28 +236,28 @@ class ActionControlPanel:
         self.on_end_turn = on_end_turn
         
         # Create main frame
-        self.frame = tk.Frame(parent, bg=UI_COLORS["panel_background"], relief="raised", bd=2)
+        self.frame = tk.Frame(parent, bg=colors.UI_COLORS["panel_background"], relief="raised", bd=2)
         
         # Title
         title = tk.Label(
             self.frame,
             text="GAME CONTROLS",
-            font=FONTS["title"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"]
+            font=colors.FONTS["title"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"]
         )
         title.pack(pady=5)
         
         # Dice display area
-        self.dice_frame = tk.Frame(self.frame, bg=UI_COLORS["panel_background"])
+        self.dice_frame = tk.Frame(self.frame, bg=colors.UI_COLORS["panel_background"])
         self.dice_frame.pack(pady=10)
         
         self.dice_canvas = tk.Canvas(
             self.dice_frame,
             width=100, height=50,
-            bg=UI_COLORS["background"],
+            bg=colors.UI_COLORS["background"],
             highlightthickness=1,
-            highlightbackground=UI_COLORS["property_border"]
+            highlightbackground=colors.UI_COLORS["property_border"]
         )
         self.dice_canvas.pack()
         
@@ -265,76 +265,76 @@ class ActionControlPanel:
         self.dice_result_label = tk.Label(
             self.dice_frame,
             text="Roll to start!",
-            font=FONTS["dice"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"]
+            font=colors.FONTS["dice"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"]
         )
         self.dice_result_label.pack(pady=5)
         
         # Action buttons
-        self.buttons_frame = tk.Frame(self.frame, bg=UI_COLORS["panel_background"])
+        self.buttons_frame = tk.Frame(self.frame, bg=colors.UI_COLORS["panel_background"])
         self.buttons_frame.pack(pady=10, padx=10, fill="x")
         
         # Roll Dice button with enhanced feedback
         self.roll_button = tk.Button(
             self.buttons_frame,
             text="🎲 ROLL DICE",
-            font=FONTS["button"],
-            bg=UI_COLORS["button_primary"],
+            font=colors.FONTS["button"],
+            bg=colors.UI_COLORS["button_primary"],
             fg="white",
             relief="raised",
             bd=3,
             command=self._handle_roll_dice,
             cursor="hand2",
-            activebackground=lighten_color(UI_COLORS["button_primary"], 0.8),
+            activebackground=lighten_color(colors.UI_COLORS["button_primary"], 0.8),
             activeforeground="white"
         )
         self.roll_button.pack(fill="x", pady=2)
-        self._add_button_hover_effects(self.roll_button, UI_COLORS["button_primary"])
+        self._add_button_hover_effects(self.roll_button, colors.UI_COLORS["button_primary"])
         
         # Buy Property button with enhanced feedback
         self.buy_button = tk.Button(
             self.buttons_frame,
             text="💰 BUY PROPERTY",
-            font=FONTS["button"],
-            bg=UI_COLORS["button_secondary"],
+            font=colors.FONTS["button"],
+            bg=colors.UI_COLORS["button_secondary"],
             fg="white",
             relief="raised",
             bd=3,
             command=self._handle_buy_property,
             cursor="hand2",
             state="disabled",
-            activebackground=lighten_color(UI_COLORS["button_secondary"], 0.8),
+            activebackground=lighten_color(colors.UI_COLORS["button_secondary"], 0.8),
             activeforeground="white"
         )
         self.buy_button.pack(fill="x", pady=2)
-        self._add_button_hover_effects(self.buy_button, UI_COLORS["button_secondary"])
+        self._add_button_hover_effects(self.buy_button, colors.UI_COLORS["button_secondary"])
         
         # Skip Purchase button with enhanced feedback
         self.skip_button = tk.Button(
             self.buttons_frame,
             text="❌ SKIP PURCHASE",
-            font=FONTS["button"],
-            bg=UI_COLORS["button_disabled"],
-            fg=UI_COLORS["text_secondary"],
+            font=colors.FONTS["button"],
+            bg=colors.UI_COLORS["button_disabled"],
+            fg=colors.UI_COLORS["text_secondary"],
             relief="raised",
             bd=3,
             command=self._handle_skip_purchase,
             cursor="hand2",
             state="disabled",
-            activebackground=lighten_color(UI_COLORS["button_primary"], 0.8),
+            activebackground=lighten_color(colors.UI_COLORS["button_primary"], 0.8),
             activeforeground="white"
         )
         self.skip_button.pack(fill="x", pady=2)
-        self._add_button_hover_effects(self.skip_button, UI_COLORS["button_primary"])
+        self._add_button_hover_effects(self.skip_button, colors.UI_COLORS["button_primary"])
         
         # Current turn info
         self.turn_info_label = tk.Label(
             self.frame,
             text="Game not started",
-            font=FONTS["status"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_secondary"]
+            font=colors.FONTS["status"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_secondary"]
         )
         self.turn_info_label.pack(pady=5)
         
@@ -372,7 +372,7 @@ class ActionControlPanel:
         self._show_random_dice()
         
         # Schedule final dice result after animation
-        self.frame.after(ANIMATION["dice_roll_duration"], self._show_final_dice)
+        self.frame.after(colors.ANIMATION["dice_roll_duration"], self._show_final_dice)
     
     def _show_random_dice(self, step=0):
         """Show random dice values during animation"""
@@ -522,15 +522,15 @@ class ActionControlPanel:
         if enabled:
             self.roll_button.config(
                 state="normal",
-                bg=UI_COLORS["button_primary"],
+                bg=colors.UI_COLORS["button_primary"],
                 fg="white",
                 cursor="hand2"
             )
         else:
             self.roll_button.config(
                 state="disabled",
-                bg=UI_COLORS["button_disabled"],
-                fg=UI_COLORS["text_secondary"],
+                bg=colors.UI_COLORS["button_disabled"],
+                fg=colors.UI_COLORS["text_secondary"],
                 cursor="arrow"
             )
     
@@ -538,13 +538,13 @@ class ActionControlPanel:
         """Enable purchase-related buttons with enhanced visual feedback"""
         self.buy_button.config(
             state="normal",
-            bg=UI_COLORS["button_secondary"],
+            bg=colors.UI_COLORS["button_secondary"],
             fg="white",
             cursor="hand2"
         )
         self.skip_button.config(
             state="normal",
-            bg=UI_COLORS["button_primary"],
+            bg=colors.UI_COLORS["button_primary"],
             fg="white",
             cursor="hand2"
         )
@@ -553,14 +553,14 @@ class ActionControlPanel:
         """Disable purchase-related buttons with enhanced visual feedback"""
         self.buy_button.config(
             state="disabled",
-            bg=UI_COLORS["button_disabled"],
-            fg=UI_COLORS["text_secondary"],
+            bg=colors.UI_COLORS["button_disabled"],
+            fg=colors.UI_COLORS["text_secondary"],
             cursor="arrow"
         )
         self.skip_button.config(
             state="disabled",
-            bg=UI_COLORS["button_disabled"],
-            fg=UI_COLORS["text_secondary"],
+            bg=colors.UI_COLORS["button_disabled"],
+            fg=colors.UI_COLORS["text_secondary"],
             cursor="arrow"
         )
     
@@ -576,29 +576,29 @@ class PropertyDetailsPanel:
         self.parent = parent
         
         # Create main frame
-        self.frame = tk.Frame(parent, bg=UI_COLORS["panel_background"], relief="raised", bd=2)
+        self.frame = tk.Frame(parent, bg=colors.UI_COLORS["panel_background"], relief="raised", bd=2)
         
         # Title
         title = tk.Label(
             self.frame,
             text="PROPERTY INFO",
-            font=FONTS["title"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"]
+            font=colors.FONTS["title"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"]
         )
         title.pack(pady=5)
         
         # Property info container
-        self.info_frame = tk.Frame(self.frame, bg=UI_COLORS["panel_background"])
+        self.info_frame = tk.Frame(self.frame, bg=colors.UI_COLORS["panel_background"])
         self.info_frame.pack(fill="both", expand=True, padx=10, pady=5)
         
         # Property name
         self.name_label = tk.Label(
             self.info_frame,
             text="No property selected",
-            font=FONTS["player"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"],
+            font=colors.FONTS["player"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"],
             wraplength=180
         )
         self.name_label.pack(pady=5)
@@ -608,9 +608,9 @@ class PropertyDetailsPanel:
             self.info_frame,
             height=8,
             width=25,
-            font=FONTS["status"],
-            bg=UI_COLORS["background"],
-            fg=UI_COLORS["text_primary"],
+            font=colors.FONTS["status"],
+            bg=colors.UI_COLORS["background"],
+            fg=colors.UI_COLORS["text_primary"],
             relief="sunken",
             bd=1,
             state="disabled"
@@ -770,15 +770,15 @@ class GameLogPanel:
         self.max_events = 50  # Maximum number of events to keep
         
         # Create main frame
-        self.frame = tk.Frame(parent, bg=UI_COLORS["panel_background"], relief="raised", bd=2)
+        self.frame = tk.Frame(parent, bg=colors.UI_COLORS["panel_background"], relief="raised", bd=2)
         
         # Title
         title = tk.Label(
             self.frame,
             text="GAME LOG",
-            font=FONTS["title"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"]
+            font=colors.FONTS["title"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"]
         )
         title.pack(pady=5)
         
@@ -795,9 +795,9 @@ class GameLogPanel:
             log_frame,
             height=12,
             width=30,
-            font=FONTS["status"],
-            bg=UI_COLORS["background"],
-            fg=UI_COLORS["text_primary"],
+            font=colors.FONTS["status"],
+            bg=colors.UI_COLORS["background"],
+            fg=colors.UI_COLORS["text_primary"],
             relief="sunken",
             bd=1,
             state="disabled",
@@ -814,8 +814,8 @@ class GameLogPanel:
             self.frame,
             text="Clear Log",
             font=("Arial", 9),
-            bg=UI_COLORS["button_disabled"],
-            fg=UI_COLORS["text_secondary"],
+            bg=colors.UI_COLORS["button_disabled"],
+            fg=colors.UI_COLORS["text_secondary"],
             command=self.clear_log,
             relief="flat"
         )
@@ -832,14 +832,14 @@ class GameLogPanel:
         """
         # Determine text color based on event type
         colors = {
-            "info": UI_COLORS["text_primary"],
-            "success": UI_COLORS["text_success"],
-            "error": UI_COLORS["text_error"],
-            "system": UI_COLORS["text_secondary"],
-            "highlight": UI_COLORS["text_highlight"]
+            "info": colors.UI_COLORS["text_primary"],
+            "success": colors.UI_COLORS["text_success"],
+            "error": colors.UI_COLORS["text_error"],
+            "system": colors.UI_COLORS["text_secondary"],
+            "highlight": colors.UI_COLORS["text_highlight"]
         }
         
-        color = colors.get(event_type, UI_COLORS["text_primary"])
+        color = colors.get(event_type, colors.UI_COLORS["text_primary"])
         
         # Enable text widget for editing
         self.log_text.config(state="normal")

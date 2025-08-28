@@ -15,15 +15,16 @@ from typing import Dict, Any, Optional
 # Add parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from .colors import *
-from .authentic_board import AuthenticMonopolyBoard
-from .polished_panels import (
+# Import directly from local files to avoid package import issues
+import colors
+from authentic_board import AuthenticMonopolyBoard
+from polished_panels import (
     MonopolyPlayerPanel,
     MonopolyControlPanel,
     MonopolyPropertyCard,
     MonopolyGameLog
 )
-from .game_controller import GameController
+from game_controller import GameController
 
 
 class PolishedMonopolyGUI:
@@ -36,8 +37,8 @@ class PolishedMonopolyGUI:
         # Create main window
         self.root = tk.Tk()
         self.root.title("MONOPOLY - Property Trading Game")
-        self.root.geometry(f"{SIZES['window_width']}x{SIZES['window_height']}")
-        self.root.configure(bg=UI_COLORS["app_background"])
+        self.root.geometry(f"{colors.SIZES['window_width']}x{colors.SIZES['window_height']}")
+        self.root.configure(bg=colors.UI_COLORS["app_background"])
         
         # Set window icon (if available)
         try:
@@ -91,7 +92,7 @@ class PolishedMonopolyGUI:
     
     def _create_menu_bar(self):
         """Create professional menu bar"""
-        menubar = tk.Menu(self.root, bg="white", fg=UI_COLORS["text_primary"])
+        menubar = tk.Menu(self.root, bg="white", fg=colors.UI_COLORS["text_primary"])
         self.root.config(menu=menubar)
         
         # Game menu
@@ -132,14 +133,14 @@ class PolishedMonopolyGUI:
         # Main container with padding
         main_container = tk.Frame(
             self.root,
-            bg=UI_COLORS["app_background"]
+            bg=colors.UI_COLORS["app_background"]
         )
         main_container.pack(fill="both", expand=True, padx=10, pady=10)
         
         # Left side - Board
         left_frame = tk.Frame(
             main_container,
-            bg=UI_COLORS["app_background"]
+            bg=colors.UI_COLORS["app_background"]
         )
         left_frame.pack(side="left", fill="both", expand=True)
         
@@ -147,9 +148,9 @@ class PolishedMonopolyGUI:
         board_title = tk.Label(
             left_frame,
             text="MONOPOLY BOARD",
-            font=FONTS["title_large"],
-            bg=UI_COLORS["app_background"],
-            fg=BOARD_COLORS["go_background"]
+            font=colors.FONTS["title_large"],
+            bg=colors.UI_COLORS["app_background"],
+            fg=colors.BOARD_COLORS["go_background"]
         )
         board_title.pack(pady=(0, 10))
         
@@ -163,8 +164,8 @@ class PolishedMonopolyGUI:
         # Right side - Panels
         right_frame = tk.Frame(
             main_container,
-            bg=UI_COLORS["app_background"],
-            width=SIZES["side_panel_width"]
+            bg=colors.UI_COLORS["app_background"],
+            width=colors.SIZES["side_panel_width"]
         )
         right_frame.pack(side="right", fill="y", padx=(10, 0))
         right_frame.pack_propagate(False)
@@ -172,11 +173,11 @@ class PolishedMonopolyGUI:
         # Scrollable container for panels
         canvas = tk.Canvas(
             right_frame,
-            bg=UI_COLORS["app_background"],
+            bg=colors.UI_COLORS["app_background"],
             highlightthickness=0
         )
         scrollbar = tk.Scrollbar(right_frame, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg=UI_COLORS["app_background"])
+        scrollable_frame = tk.Frame(canvas, bg=colors.UI_COLORS["app_background"])
         
         scrollable_frame.bind(
             "<Configure>",
@@ -230,7 +231,7 @@ class PolishedMonopolyGUI:
         welcome = tk.Toplevel(self.root)
         welcome.title("Welcome to Monopoly!")
         welcome.geometry("500x400")
-        welcome.configure(bg=UI_COLORS["panel_background"])
+        welcome.configure(bg=colors.UI_COLORS["panel_background"])
         welcome.transient(self.root)
         
         # Center the welcome window
@@ -244,31 +245,31 @@ class PolishedMonopolyGUI:
             welcome,
             text="MONOPOLY",
             font=("Times New Roman", 36, "bold"),
-            bg=UI_COLORS["panel_background"],
-            fg=BOARD_COLORS["go_background"]
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.BOARD_COLORS["go_background"]
         )
         title.pack(pady=30)
         
         subtitle = tk.Label(
             welcome,
             text="Property Trading Game",
-            font=FONTS["title_medium"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_secondary"]
+            font=colors.FONTS["title_medium"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_secondary"]
         )
         subtitle.pack()
         
         # Game options
-        options_frame = tk.Frame(welcome, bg=UI_COLORS["panel_background"])
+        options_frame = tk.Frame(welcome, bg=colors.UI_COLORS["panel_background"])
         options_frame.pack(pady=40)
         
         # Number of players
         tk.Label(
             options_frame,
             text="Number of Players:",
-            font=FONTS["player_info"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"]
+            font=colors.FONTS["player_info"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"]
         ).grid(row=0, column=0, padx=10, pady=10, sticky="e")
         
         self.num_players = tk.IntVar(value=2)
@@ -277,7 +278,7 @@ class PolishedMonopolyGUI:
             from_=2, to=8,
             textvariable=self.num_players,
             width=5,
-            font=FONTS["player_info"]
+            font=colors.FONTS["player_info"]
         )
         player_spinbox.grid(row=0, column=1, padx=10, pady=10)
         
@@ -285,9 +286,9 @@ class PolishedMonopolyGUI:
         tk.Label(
             options_frame,
             text="AI Players:",
-            font=FONTS["player_info"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"]
+            font=colors.FONTS["player_info"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"]
         ).grid(row=1, column=0, padx=10, pady=10, sticky="e")
         
         self.ai_players = tk.IntVar(value=1)
@@ -296,19 +297,19 @@ class PolishedMonopolyGUI:
             from_=0, to=7,
             textvariable=self.ai_players,
             width=5,
-            font=FONTS["player_info"]
+            font=colors.FONTS["player_info"]
         )
         ai_spinbox.grid(row=1, column=1, padx=10, pady=10)
         
         # Buttons
-        button_frame = tk.Frame(welcome, bg=UI_COLORS["panel_background"])
+        button_frame = tk.Frame(welcome, bg=colors.UI_COLORS["panel_background"])
         button_frame.pack(pady=30)
         
         start_btn = tk.Button(
             button_frame,
             text="Start Game",
-            font=FONTS["button_text"],
-            bg=UI_COLORS["button_primary"],
+            font=colors.FONTS["button_text"],
+            bg=colors.UI_COLORS["button_primary"],
             fg="white",
             padx=20,
             pady=10,
@@ -319,8 +320,8 @@ class PolishedMonopolyGUI:
         quick_btn = tk.Button(
             button_frame,
             text="Quick Start",
-            font=FONTS["button_text"],
-            bg=UI_COLORS["button_secondary"],
+            font=colors.FONTS["button_text"],
+            bg=colors.UI_COLORS["button_secondary"],
             fg="white",
             padx=20,
             pady=10,
@@ -413,7 +414,7 @@ class PolishedMonopolyGUI:
         
         # Handle landing
         self.root.after(
-            len(range(old_pos, new_pos if new_pos > old_pos else new_pos + 40)) * ANIMATION["token_move_speed"],
+                            len(range(old_pos, new_pos if new_pos > old_pos else new_pos + 40)) * colors.ANIMATION["token_move_speed"],
             lambda: self._handle_landing(result)
         )
     
@@ -558,13 +559,13 @@ class PolishedMonopolyGUI:
         tk.Label(
             settings_window,
             text="Game Settings",
-            font=FONTS["title_medium"]
+            font=colors.FONTS["title_medium"]
         ).pack(pady=20)
         
         tk.Label(
             settings_window,
             text="Settings coming soon...",
-            font=FONTS["player_info"]
+            font=colors.FONTS["player_info"]
         ).pack(pady=50)
     
     def _show_help(self):
@@ -597,7 +598,7 @@ class PolishedMonopolyGUI:
         text_widget = tk.Text(
             rules_window,
             wrap="word",
-            font=FONTS["player_info"],
+            font=colors.FONTS["player_info"],
             padx=10,
             pady=10
         )

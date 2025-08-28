@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import Canvas
 import math
 from typing import Dict, List, Tuple, Optional, Any
-from .colors import *
+import colors
 
 class AuthenticMonopolyBoard:
     """Professional Monopoly board with authentic design"""
@@ -26,10 +26,10 @@ class AuthenticMonopolyBoard:
         self.on_property_click = on_property_click
         
         # Board dimensions
-        self.board_size = SIZES["board_size"]
-        self.corner_size = SIZES["corner_size"]
-        self.property_width = SIZES["property_width"]
-        self.property_height = SIZES["property_height"]
+        self.board_size = colors.SIZES["board_size"]
+        self.corner_size = colors.SIZES["corner_size"]
+        self.property_width = colors.SIZES["property_width"]
+        self.property_height = colors.SIZES["property_height"]
         
         # Create main canvas
         self.canvas = self._create_canvas()
@@ -58,7 +58,7 @@ class AuthenticMonopolyBoard:
             self.parent,
             width=self.board_size,
             height=self.board_size,
-            bg=BOARD_COLORS["board_center"],
+            bg=colors.BOARD_COLORS["board_center"],
             highlightthickness=0
         )
         canvas.pack(padx=10, pady=10)
@@ -75,7 +75,7 @@ class AuthenticMonopolyBoard:
         # Outer border
         self.canvas.create_rectangle(
             1, 1, self.board_size - 1, self.board_size - 1,
-            fill=BOARD_COLORS["board_edge"],
+            fill=colors.BOARD_COLORS["board_edge"],
             width=3,
             outline="#000000"
         )
@@ -85,9 +85,9 @@ class AuthenticMonopolyBoard:
             self.corner_size, self.corner_size,
             self.board_size - self.corner_size,
             self.board_size - self.corner_size,
-            fill=BOARD_COLORS["board_center"],
+            fill=colors.BOARD_COLORS["board_center"],
             width=2,
-            outline=BOARD_COLORS["property_border"]
+            outline=colors.BOARD_COLORS["property_border"]
         )
     
     def _draw_all_spaces(self):
@@ -141,20 +141,20 @@ class AuthenticMonopolyBoard:
         size = self.corner_size
         
         # Determine corner color
-        colors = {
-            0: BOARD_COLORS["go_background"],
-            10: BOARD_COLORS["jail_background"],
-            20: BOARD_COLORS["parking_background"],
-            30: BOARD_COLORS["go_to_jail_bg"]
+        corner_colors = {
+            0: colors.BOARD_COLORS["go_background"],
+            10: colors.BOARD_COLORS["jail_background"],
+            20: colors.BOARD_COLORS["parking_background"],
+            30: colors.BOARD_COLORS["go_to_jail_bg"]
         }
         
-        bg_color = colors.get(position, "#FFFFFF")
+        bg_color = corner_colors.get(position, "#FFFFFF")
         
         # Draw corner rectangle
         rect = self.canvas.create_rectangle(
             x, y, x + size, y + size,
             fill=bg_color,
-            outline=BOARD_COLORS["property_border"],
+            outline=colors.BOARD_COLORS["property_border"],
             width=2,
             tags=(f"space_{position}", "corner", "clickable")
         )
@@ -222,13 +222,13 @@ class AuthenticMonopolyBoard:
                 center_x, center_y - 10,
                 text="FREE",
                 font=("Arial", 12, "bold"),
-                fill=BOARD_COLORS["parking_text"]
+                fill=colors.BOARD_COLORS["parking_text"]
             )
             self.canvas.create_text(
                 center_x, center_y + 10,
                 text="PARKING",
                 font=("Arial", 12, "bold"),
-                fill=BOARD_COLORS["parking_text"]
+                fill=colors.BOARD_COLORS["parking_text"]
             )
             
         elif position == 30:  # Go to Jail
@@ -251,8 +251,8 @@ class AuthenticMonopolyBoard:
         # Draw property rectangle
         rect = self.canvas.create_rectangle(
             x, y, x + w, y + h,
-            fill=BOARD_COLORS["board_surface"],
-            outline=BOARD_COLORS["property_border"],
+            fill=colors.BOARD_COLORS["board_surface"],
+            outline=colors.BOARD_COLORS["property_border"],
             width=1,
             tags=(f"space_{position}", "property", "clickable")
         )
@@ -285,15 +285,15 @@ class AuthenticMonopolyBoard:
     def _draw_colored_property(self, position: int, x: int, y: int, w: int, h: int,
                               side: str, name: str, color_group: str, cost: Any):
         """Draw colored property with color bar"""
-        prop_color = get_property_color(color_group)
-        bar_size = SIZES["property_color_bar"]
+        prop_color = colors.get_property_color(color_group)
+        bar_size = colors.SIZES["property_color_bar"]
         
         # Draw color bar based on side
         if side == "bottom":
             self.canvas.create_rectangle(
                 x, y, x + w, y + bar_size,
                 fill=prop_color,
-                outline=BOARD_COLORS["property_border"]
+                outline=colors.BOARD_COLORS["property_border"]
             )
             text_y = y + bar_size + 12
             price_y = y + h - 8
@@ -301,13 +301,13 @@ class AuthenticMonopolyBoard:
             self.canvas.create_rectangle(
                 x + w - bar_size, y, x + w, y + h,
                 fill=prop_color,
-                outline=BOARD_COLORS["property_border"]
+                outline=colors.BOARD_COLORS["property_border"]
             )
         elif side == "top":
             self.canvas.create_rectangle(
                 x, y + h - bar_size, x + w, y + h,
                 fill=prop_color,
-                outline=BOARD_COLORS["property_border"]
+                outline=colors.BOARD_COLORS["property_border"]
             )
             text_y = y + 10
             price_y = y + h - bar_size - 8
@@ -315,7 +315,7 @@ class AuthenticMonopolyBoard:
             self.canvas.create_rectangle(
                 x, y, x + bar_size, y + h,
                 fill=prop_color,
-                outline=BOARD_COLORS["property_border"]
+                outline=colors.BOARD_COLORS["property_border"]
             )
         
         # Draw property name (for horizontal properties)
@@ -438,7 +438,7 @@ class AuthenticMonopolyBoard:
         # Orange background
         self.canvas.create_rectangle(
             x + 3, y + 3, x + w - 3, y + h - 3,
-            fill=BOARD_COLORS["chance_background"],
+            fill=colors.BOARD_COLORS["chance_background"],
             outline=""
         )
         
@@ -465,7 +465,7 @@ class AuthenticMonopolyBoard:
         # Blue background
         self.canvas.create_rectangle(
             x + 3, y + 3, x + w - 3, y + h - 3,
-            fill=BOARD_COLORS["community_chest_bg"],
+            fill=colors.BOARD_COLORS["community_chest_bg"],
             outline=""
         )
         
@@ -496,7 +496,7 @@ class AuthenticMonopolyBoard:
             center, center - 15,
             text="MONOPOLY",
             font=("Times New Roman", 32, "bold"),
-            fill=BOARD_COLORS["go_background"]
+            fill=colors.BOARD_COLORS["go_background"]
         )
         
         self.canvas.create_text(
@@ -532,7 +532,7 @@ class AuthenticMonopolyBoard:
     
     def _is_colored_property(self, color_group: str) -> bool:
         """Check if this is a colored property"""
-        return color_group in PROPERTY_COLORS and color_group not in ["Railroad", "Utilities"]
+        return color_group in colors.PROPERTY_COLORS and color_group not in ["Railroad", "Utilities"]
     
     def _setup_events(self):
         """Setup mouse events"""
@@ -600,15 +600,15 @@ class AuthenticMonopolyBoard:
         if position in self.property_rects:
             rect = self.property_rects[position]
             self.canvas.itemconfig(rect, width=2, 
-                                 outline=UI_COLORS["token_glow"])
+                                 outline=colors.UI_COLORS["token_glow"])
             self.selected_property = position
     
     def add_player_token(self, player_name: str, player_index: int):
         """Add a player token to the board"""
         x, y, w, h, _ = self._get_space_coords(0)
         
-        token_color = get_player_color(player_index)
-        token_size = SIZES["token_size"]
+        token_color = colors.get_player_color(player_index)
+        token_size = colors.SIZES["token_size"]
         
         # Calculate token position with offset for multiple players
         offset_x, offset_y = self._get_token_offset(player_index)
@@ -665,7 +665,7 @@ class AuthenticMonopolyBoard:
         
         # Continue animation
         self.canvas.after(
-            ANIMATION["token_move_speed"],
+            colors.ANIMATION["token_move_speed"],
             lambda: self._move_along_path(player_name, path, index + 1)
         )
     
@@ -681,7 +681,7 @@ class AuthenticMonopolyBoard:
         player_index = list(self.player_tokens.keys()).index(player_name)
         offset_x, offset_y = self._get_token_offset(player_index)
         
-        token_size = SIZES["token_size"]
+        token_size = colors.SIZES["token_size"]
         token_x = x + w // 2 + offset_x
         token_y = y + h // 2 + offset_y
         
@@ -721,7 +721,7 @@ class AuthenticMonopolyBoard:
                     bbox[0] - 3, bbox[1] - 3,
                     bbox[2] + 3, bbox[3] + 3,
                     fill="",
-                    outline=UI_COLORS["token_glow"],
+                    outline=colors.UI_COLORS["token_glow"],
                     width=3,
                     tags="token_highlight"
                 )

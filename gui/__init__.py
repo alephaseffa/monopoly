@@ -9,15 +9,15 @@ __version__ = "1.0.0"
 __author__ = "Aleph Aseffa"
 
 # Import main components for easier access
-from .monopoly_gui import MonopolyGUI
-from .game_controller import GameController
-from .board_canvas import BoardCanvas
-from .colors import *
+from monopoly_gui import MonopolyGUI
+from game_controller import GameController
+from authentic_board import AuthenticMonopolyBoard
+import colors
 
 __all__ = [
     'MonopolyGUI',
     'GameController', 
-    'BoardCanvas',
+    'AuthenticMonopolyBoard',
     'PROPERTY_COLORS',
     'UI_COLORS',
     'SIZES',

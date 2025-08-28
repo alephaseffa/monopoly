@@ -11,7 +11,7 @@ from tkinter import ttk
 from typing import Dict, List, Optional, Callable, Any
 import random
 import datetime
-from .colors import *
+import colors
 
 class MonopolyPlayerPanel:
     """
@@ -26,7 +26,7 @@ class MonopolyPlayerPanel:
         # Create main frame with Monopoly styling
         self.frame = tk.Frame(
             parent,
-            bg=UI_COLORS["panel_background"],
+            bg=colors.UI_COLORS["panel_background"],
             relief="raised",
             bd=2
         )
@@ -37,7 +37,7 @@ class MonopolyPlayerPanel:
         # Player cards container
         self.players_container = tk.Frame(
             self.frame,
-            bg=UI_COLORS["panel_background"]
+            bg=colors.UI_COLORS["panel_background"]
         )
         self.players_container.pack(fill="both", expand=True, padx=8, pady=5)
         
@@ -52,7 +52,7 @@ class MonopolyPlayerPanel:
         """Create professional title bar"""
         title_frame = tk.Frame(
             self.frame,
-            bg=BOARD_COLORS["go_background"],
+            bg=colors.BOARD_COLORS["go_background"],
             height=35
         )
         title_frame.pack(fill="x")
@@ -61,8 +61,8 @@ class MonopolyPlayerPanel:
         title = tk.Label(
             title_frame,
             text="PLAYERS",
-            font=FONTS["title_medium"],
-            bg=BOARD_COLORS["go_background"],
+            font=colors.FONTS["title_medium"],
+            bg=colors.BOARD_COLORS["go_background"],
             fg="white"
         )
         title.place(relx=0.5, rely=0.5, anchor="center")
@@ -70,7 +70,7 @@ class MonopolyPlayerPanel:
     def _create_player_card(self, index: int, player_data: Dict):
         """Create a polished player card"""
         player_name = player_data["name"]
-        player_color = get_player_color(index)
+        player_color = colors.get_player_color(index)
         
         # Card frame
         card = tk.Frame(
@@ -110,7 +110,7 @@ class MonopolyPlayerPanel:
         token_canvas.create_oval(
             3, 3, 17, 17,
             fill=player_color,
-            outline=darken_color(player_color, 0.6),
+            outline=colors.darken_color(player_color, 0.6),
             width=2
         )
         
@@ -118,9 +118,9 @@ class MonopolyPlayerPanel:
         name_label = tk.Label(
             name_frame,
             text=player_name,
-            font=FONTS["player_name"],
+            font=colors.FONTS["player_name"],
             bg="white",
-            fg=UI_COLORS["text_primary"]
+            fg=colors.UI_COLORS["text_primary"]
         )
         name_label.pack(side="left")
         
@@ -130,7 +130,7 @@ class MonopolyPlayerPanel:
             text="◀ YOUR TURN",
             font=("Arial", 10, "bold"),
             bg="white",
-            fg=BOARD_COLORS["go_background"]
+            fg=colors.BOARD_COLORS["go_background"]
         )
         turn_indicator.pack(side="right")
         turn_indicator.pack_forget()
@@ -146,9 +146,9 @@ class MonopolyPlayerPanel:
         balance_label = tk.Label(
             balance_frame,
             text=f"💰 ${player_data['balance']:,}",
-            font=FONTS["money_amount"],
+            font=colors.FONTS["money_amount"],
             bg="white",
-            fg=UI_COLORS["text_success"]
+            fg=colors.UI_COLORS["text_success"]
         )
         balance_label.pack(side="left")
         
@@ -156,9 +156,9 @@ class MonopolyPlayerPanel:
         properties_label = tk.Label(
             stats_frame,
             text=f"Properties: {player_data['properties']}",
-            font=FONTS["player_info"],
+            font=colors.FONTS["player_info"],
             bg="white",
-            fg=UI_COLORS["text_secondary"]
+            fg=colors.UI_COLORS["text_secondary"]
         )
         properties_label.pack(anchor="w")
         
@@ -171,7 +171,7 @@ class MonopolyPlayerPanel:
             status_frame,
             text="🔒 IN JAIL",
             font=("Arial", 9, "bold"),
-            bg=BOARD_COLORS["jail_background"],
+            bg=colors.BOARD_COLORS["jail_background"],
             fg="white",
             padx=5,
             pady=2
@@ -184,7 +184,7 @@ class MonopolyPlayerPanel:
             status_frame,
             text="❌ BANKRUPT",
             font=("Arial", 9, "bold"),
-            bg=UI_COLORS["text_error"],
+            bg=colors.UI_COLORS["text_error"],
             fg="white",
             padx=5,
             pady=2
@@ -259,7 +259,7 @@ class MonopolyControlPanel:
         # Create main frame
         self.frame = tk.Frame(
             parent,
-            bg=UI_COLORS["panel_background"],
+            bg=colors.UI_COLORS["panel_background"],
             relief="raised",
             bd=2
         )
@@ -270,7 +270,7 @@ class MonopolyControlPanel:
         # Content container
         content = tk.Frame(
             self.frame,
-            bg=UI_COLORS["panel_background"],
+            bg=colors.UI_COLORS["panel_background"],
             padx=10,
             pady=10
         )
@@ -292,7 +292,7 @@ class MonopolyControlPanel:
         """Create title bar"""
         title_frame = tk.Frame(
             self.frame,
-            bg=BOARD_COLORS["go_background"],
+            bg=colors.BOARD_COLORS["go_background"],
             height=35
         )
         title_frame.pack(fill="x")
@@ -301,8 +301,8 @@ class MonopolyControlPanel:
         title = tk.Label(
             title_frame,
             text="GAME CONTROLS",
-            font=FONTS["title_medium"],
-            bg=BOARD_COLORS["go_background"],
+            font=colors.FONTS["title_medium"],
+            bg=colors.BOARD_COLORS["go_background"],
             fg="white"
         )
         title.place(relx=0.5, rely=0.5, anchor="center")
@@ -312,9 +312,9 @@ class MonopolyControlPanel:
         dice_frame = tk.LabelFrame(
             parent,
             text="DICE",
-            font=FONTS["title_small"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"],
+            font=colors.FONTS["title_small"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"],
             relief="groove",
             bd=2
         )
@@ -333,9 +333,9 @@ class MonopolyControlPanel:
         self.dice_result = tk.Label(
             dice_frame,
             text="Ready to roll!",
-            font=FONTS["dice_number"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_primary"]
+            font=colors.FONTS["dice_number"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_primary"]
         )
         self.dice_result.pack(pady=(0, 10))
         
@@ -385,7 +385,7 @@ class MonopolyControlPanel:
         """Create action buttons"""
         buttons_frame = tk.Frame(
             parent,
-            bg=UI_COLORS["panel_background"]
+            bg=colors.UI_COLORS["panel_background"]
         )
         buttons_frame.pack(fill="x", pady=10)
         
@@ -393,7 +393,7 @@ class MonopolyControlPanel:
         self.roll_button = self._create_button(
             buttons_frame,
             "🎲 ROLL DICE",
-            UI_COLORS["button_primary"],
+            colors.UI_COLORS["button_primary"],
             self.callbacks.get("on_roll_dice", lambda: None)
         )
         self.roll_button.pack(fill="x", pady=3)
@@ -402,7 +402,7 @@ class MonopolyControlPanel:
         self.buy_button = self._create_button(
             buttons_frame,
             "💰 BUY PROPERTY",
-            UI_COLORS["button_secondary"],
+            colors.UI_COLORS["button_secondary"],
             self.callbacks.get("on_buy_property", lambda: None)
         )
         self.buy_button.pack(fill="x", pady=3)
@@ -412,7 +412,7 @@ class MonopolyControlPanel:
         self.skip_button = self._create_button(
             buttons_frame,
             "⏭️ SKIP PURCHASE",
-            UI_COLORS["button_warning"],
+            colors.UI_COLORS["button_warning"],
             self.callbacks.get("on_skip_purchase", lambda: None)
         )
         self.skip_button.pack(fill="x", pady=3)
@@ -423,14 +423,14 @@ class MonopolyControlPanel:
         button = tk.Button(
             parent,
             text=text,
-            font=FONTS["button_text"],
+            font=colors.FONTS["button_text"],
             bg=color,
-            fg=UI_COLORS["button_text"],
+            fg=colors.UI_COLORS["button_text"],
             relief="raised",
             bd=2,
             cursor="hand2",
             command=command,
-            activebackground=darken_color(color, 0.9)
+            activebackground=colors.darken_color(color, 0.9)
         )
         
         # Add hover effects
@@ -444,9 +444,9 @@ class MonopolyControlPanel:
         self.turn_info = tk.Label(
             parent,
             text="Game not started",
-            font=FONTS["status_text"],
-            bg=UI_COLORS["panel_background"],
-            fg=UI_COLORS["text_secondary"],
+            font=colors.FONTS["status_text"],
+            bg=colors.UI_COLORS["panel_background"],
+            fg=colors.UI_COLORS["text_secondary"],
             wraplength=200
         )
         self.turn_info.pack(pady=10)
@@ -481,7 +481,7 @@ class MonopolyControlPanel:
         """Enable/disable roll button"""
         self.roll_button.config(
             state="normal" if enabled else "disabled",
-            bg=UI_COLORS["button_primary"] if enabled else UI_COLORS["button_disabled"]
+            bg=colors.UI_COLORS["button_primary"] if enabled else colors.UI_COLORS["button_disabled"]
         )
     
     def enable_purchase_buttons(self, enabled: bool = True):
@@ -490,12 +490,12 @@ class MonopolyControlPanel:
         
         self.buy_button.config(
             state=state,
-            bg=UI_COLORS["button_secondary"] if enabled else UI_COLORS["button_disabled"]
+            bg=colors.UI_COLORS["button_secondary"] if enabled else colors.UI_COLORS["button_disabled"]
         )
         
         self.skip_button.config(
             state=state,
-            bg=UI_COLORS["button_warning"] if enabled else UI_COLORS["button_disabled"]
+            bg=colors.UI_COLORS["button_warning"] if enabled else colors.UI_COLORS["button_disabled"]
         )
     
     def get_frame(self) -> tk.Frame:
@@ -515,7 +515,7 @@ class MonopolyPropertyCard:
         # Create main frame
         self.frame = tk.Frame(
             parent,
-            bg=UI_COLORS["panel_background"],
+            bg=colors.UI_COLORS["panel_background"],
             relief="raised",
             bd=2
         )
@@ -526,7 +526,7 @@ class MonopolyPropertyCard:
         # Card display area
         self.card_container = tk.Frame(
             self.frame,
-            bg=UI_COLORS["panel_background"],
+            bg=colors.UI_COLORS["panel_background"],
             padx=10,
             pady=10
         )
@@ -548,7 +548,7 @@ class MonopolyPropertyCard:
         """Create title bar"""
         title_frame = tk.Frame(
             self.frame,
-            bg=BOARD_COLORS["go_background"],
+            bg=colors.BOARD_COLORS["go_background"],
             height=35
         )
         title_frame.pack(fill="x")
@@ -557,8 +557,8 @@ class MonopolyPropertyCard:
         title = tk.Label(
             title_frame,
             text="PROPERTY CARD",
-            font=FONTS["title_medium"],
-            bg=BOARD_COLORS["go_background"],
+            font=colors.FONTS["title_medium"],
+            bg=colors.BOARD_COLORS["go_background"],
             fg="white"
         )
         title.place(relx=0.5, rely=0.5, anchor="center")
@@ -573,9 +573,9 @@ class MonopolyPropertyCard:
         msg = tk.Label(
             self.property_card,
             text="Click on a property\nto view details",
-            font=FONTS["player_info"],
+            font=colors.FONTS["player_info"],
             bg="white",
-            fg=UI_COLORS["text_tertiary"],
+            fg=colors.UI_COLORS["text_tertiary"],
             justify="center"
         )
         msg.place(relx=0.5, rely=0.5, anchor="center")
@@ -609,9 +609,9 @@ class MonopolyPropertyCard:
         name_label = tk.Label(
             self.property_card,
             text=name.upper(),
-            font=FONTS["title_small"],
+            font=colors.FONTS["title_small"],
             bg="white",
-            fg=UI_COLORS["text_primary"]
+            fg=colors.UI_COLORS["text_primary"]
         )
         name_label.pack(pady=10)
         
@@ -628,7 +628,7 @@ class MonopolyPropertyCard:
             text="Owner:",
             font=("Arial", 10, "bold"),
             bg="white",
-            fg=UI_COLORS["text_secondary"]
+            fg=colors.UI_COLORS["text_secondary"]
         ).pack(side="left")
         
         tk.Label(
@@ -636,7 +636,7 @@ class MonopolyPropertyCard:
             text=owner if owner != "Bank" else "Available",
             font=("Arial", 10),
             bg="white",
-            fg=UI_COLORS["text_success"] if owner == "Bank" else UI_COLORS["text_primary"]
+            fg=colors.UI_COLORS["text_success"] if owner == "Bank" else colors.UI_COLORS["text_primary"]
         ).pack(side="left", padx=(5, 0))
         
         # Cost
@@ -649,15 +649,15 @@ class MonopolyPropertyCard:
                 text="Cost:",
                 font=("Arial", 10, "bold"),
                 bg="white",
-                fg=UI_COLORS["text_secondary"]
+                fg=colors.UI_COLORS["text_secondary"]
             ).pack(side="left")
             
             tk.Label(
                 cost_frame,
                 text=f"${cost}",
-                font=FONTS["money_amount"],
+                font=colors.FONTS["money_amount"],
                 bg="white",
-                fg=UI_COLORS["text_primary"]
+                fg=colors.UI_COLORS["text_primary"]
             ).pack(side="left", padx=(5, 0))
         
         # Rent information
@@ -668,7 +668,7 @@ class MonopolyPropertyCard:
                 text="RENT",
                 font=("Arial", 10, "bold"),
                 bg="white",
-                fg=UI_COLORS["text_secondary"]
+                fg=colors.UI_COLORS["text_secondary"]
             ).pack(pady=(10, 5))
             
             rent_frame = tk.Frame(content, bg="white")
@@ -690,7 +690,7 @@ class MonopolyPropertyCard:
                         text=label,
                         font=("Arial", 9),
                         bg="white",
-                        fg=UI_COLORS["text_secondary"],
+                        fg=colors.UI_COLORS["text_secondary"],
                         width=10,
                         anchor="w"
                     ).pack(side="left")
@@ -700,12 +700,12 @@ class MonopolyPropertyCard:
                         text=f"${rent_info[i]}",
                         font=("Arial", 9, "bold"),
                         bg="white",
-                        fg=UI_COLORS["text_primary"]
+                        fg=colors.UI_COLORS["text_primary"]
                     ).pack(side="left")
     
     def _is_colored_property(self, color_group: str) -> bool:
         """Check if this is a colored property"""
-        return color_group in PROPERTY_COLORS and color_group not in ["Railroad", "Utilities"]
+        return color_group in colors.PROPERTY_COLORS and color_group not in ["Railroad", "Utilities"]
     
     def get_frame(self) -> tk.Frame:
         """Get the main frame"""
@@ -724,7 +724,7 @@ class MonopolyGameLog:
         # Create main frame
         self.frame = tk.Frame(
             parent,
-            bg=UI_COLORS["panel_background"],
+            bg=colors.UI_COLORS["panel_background"],
             relief="raised",
             bd=2
         )
@@ -735,7 +735,7 @@ class MonopolyGameLog:
         # Log area
         log_container = tk.Frame(
             self.frame,
-            bg=UI_COLORS["panel_background"],
+            bg=colors.UI_COLORS["panel_background"],
             padx=5,
             pady=5
         )
@@ -751,9 +751,9 @@ class MonopolyGameLog:
         self.log_text = tk.Text(
             scroll_frame,
             height=10,
-            font=FONTS["log_text"],
+            font=colors.FONTS["log_text"],
             bg="white",
-            fg=UI_COLORS["text_primary"],
+            fg=colors.UI_COLORS["text_primary"],
             wrap="word",
             yscrollcommand=scrollbar.set,
             state="disabled"
@@ -763,19 +763,19 @@ class MonopolyGameLog:
         scrollbar.config(command=self.log_text.yview)
         
         # Configure text tags for different message types
-        self.log_text.tag_config("info", foreground=UI_COLORS["text_info"])
-        self.log_text.tag_config("success", foreground=UI_COLORS["text_success"])
-        self.log_text.tag_config("warning", foreground=UI_COLORS["text_warning"])
-        self.log_text.tag_config("error", foreground=UI_COLORS["text_error"])
-        self.log_text.tag_config("timestamp", foreground=UI_COLORS["text_tertiary"])
+        self.log_text.tag_config("info", foreground=colors.UI_COLORS["text_info"])
+        self.log_text.tag_config("success", foreground=colors.UI_COLORS["text_success"])
+        self.log_text.tag_config("warning", foreground=colors.UI_COLORS["text_warning"])
+        self.log_text.tag_config("error", foreground=colors.UI_COLORS["text_error"])
+        self.log_text.tag_config("timestamp", foreground=colors.UI_COLORS["text_tertiary"])
         
         # Clear button
         clear_btn = tk.Button(
             log_container,
             text="Clear Log",
             font=("Arial", 9),
-            bg=UI_COLORS["button_disabled"],
-            fg=UI_COLORS["text_secondary"],
+            bg=colors.UI_COLORS["button_disabled"],
+            fg=colors.UI_COLORS["text_secondary"],
             relief="flat",
             command=self.clear_log
         )
@@ -788,7 +788,7 @@ class MonopolyGameLog:
         """Create title bar"""
         title_frame = tk.Frame(
             self.frame,
-            bg=BOARD_COLORS["go_background"],
+            bg=colors.BOARD_COLORS["go_background"],
             height=35
         )
         title_frame.pack(fill="x")
@@ -797,8 +797,8 @@ class MonopolyGameLog:
         title = tk.Label(
             title_frame,
             text="GAME LOG",
-            font=FONTS["title_medium"],
-            bg=BOARD_COLORS["go_background"],
+            font=colors.FONTS["title_medium"],
+            bg=colors.BOARD_COLORS["go_background"],
             fg="white"
         )
         title.place(relx=0.5, rely=0.5, anchor="center")
