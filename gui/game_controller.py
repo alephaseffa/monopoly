@@ -25,6 +25,7 @@ class GameController:
         # Initialize game components
         self.board = info.initialize_cards_and_board()
         self.chance_deck = info.initialize_chance_deck()
+        self.community_chest_deck = info.initialize_community_chest_deck()
         
         # Initialize players
         self.players = [
@@ -217,7 +218,7 @@ class GameController:
         # Use existing check_pos logic but capture the result
         if player.name == "AI":
             # For AI, check_pos returns 1 if property can be purchased
-            purchasable = player.check_pos(self.board, self.chance_deck)
+            purchasable = player.check_pos(self.board, self.chance_deck, self.community_chest_deck)
             if purchasable:
                 self.turn_phase = "action_required"
                 return {
@@ -263,8 +264,9 @@ class GameController:
                 card.execute(player, self.board)
                 
             elif property_card.card_name == 'Community Chest':
-                self._notify_game_event(f"{player.name} landed on Community Chest")
-                messagebox.showinfo("Community Chest", "Community Chest cards not yet implemented")
+                self._notify_game_event(f"{player.name} drew a Community Chest card!")
+                card = self.community_chest_deck.draw()
+                card.execute(player, self.board)
                 
             else:
                 self._notify_game_event(f"{player.name} landed on {property_card.card_name}")
@@ -365,9 +367,9 @@ class GameController:
         ai_player = self.get_current_player()
         
         if ai_player.in_jail:
-            ai.leave_jail(ai_player, self.board, self.chance_deck)
+            ai.leave_jail(ai_player, self.board, self.chance_deck, self.community_chest_deck)
         else:
-            ai.move(ai_player, self.board, self.chance_deck)
+            ai.move(ai_player, self.board, self.chance_deck, self.community_chest_deck)
         
         # Notify GUI of AI actions
         self._notify_balance_changed(ai_player.name, ai_player.balance)
