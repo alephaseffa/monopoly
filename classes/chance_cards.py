@@ -40,22 +40,22 @@ class ChanceCard:
     effect_params: Dict[str, Any] = field(default_factory=dict)
     is_keepable: bool = False
 
-    def execute(self, player: 'Player', board: List['Card']) -> None:
-        ChanceCardExecutor.execute(self, player, board)
+    def execute(self, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None) -> None:
+        ChanceCardExecutor.execute(self, player, board, all_players, chance_deck, community_chest_deck)
 
 
 class ChanceCardExecutor:
     @staticmethod
-    def execute(card: ChanceCard, player: 'Player', board: List['Card']) -> None:
+    def execute(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None) -> None:
         print(f"\n{player.name} drew a Chance card:")
         print(f'"{card.title}" - {card.description}')
         
         method_name = f"_handle_{card.effect_type.value}"
         handler = getattr(ChanceCardExecutor, method_name)
-        handler(card, player, board)
+        handler(card, player, board, all_players, chance_deck, community_chest_deck)
 
     @staticmethod
-    def _handle_move_to_position(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_move_to_position(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         target_pos = card.effect_params['position']
         
         # Check if passing GO
@@ -65,10 +65,11 @@ class ChanceCardExecutor:
         
         player.current_pos = target_pos
         print(f"{player.name} moves to {board[target_pos].card_name}")
-        # Note: check_pos called without decks to prevent recursive card draws
+        # Restore check_pos call to trigger space effects (no all_players to prevent recursion)
+        player.check_pos(board, chance_deck, community_chest_deck, None)
 
     @staticmethod
-    def _handle_move_relative(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_move_relative(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         spaces = card.effect_params['spaces']
         old_pos = player.current_pos
         player.current_pos = (player.current_pos + spaces) % 40
@@ -79,33 +80,34 @@ class ChanceCardExecutor:
             player.add_balance(200)
         
         print(f"{player.name} moves to {board[player.current_pos].card_name}")
-        # Note: check_pos called without decks to prevent recursive card draws
+        # Restore check_pos call to trigger space effects (no all_players to prevent recursion)
+        player.check_pos(board, chance_deck, community_chest_deck, None)
 
     @staticmethod
-    def _handle_pay_money(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_pay_money(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         amount = card.effect_params['amount']
         print(f"{player.name} pays ${amount}")
         player.reduce_balance(amount)
 
     @staticmethod
-    def _handle_receive_money(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_receive_money(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         amount = card.effect_params['amount']
         print(f"{player.name} receives ${amount}")
         player.add_balance(amount)
 
     @staticmethod
-    def _handle_go_to_jail(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_go_to_jail(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         print(f"{player.name} goes directly to jail!")
         player.send_to_jail()
         player.in_jail = True
 
     @staticmethod
-    def _handle_get_out_of_jail_free(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_get_out_of_jail_free(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         print(f"{player.name} receives a Get Out of Jail Free card!")
         player.get_out_of_jail_cards.append(card)
 
     @staticmethod
-    def _handle_property_repairs(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_property_repairs(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         house_cost = card.effect_params['house_cost']
         hotel_cost = card.effect_params['hotel_cost']
         
@@ -129,7 +131,7 @@ class ChanceCardExecutor:
             print(f"{player.name} has no properties requiring repairs")
 
     @staticmethod
-    def _handle_advance_to_nearest_railroad(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_advance_to_nearest_railroad(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         railroad_positions = [5, 15, 25, 35]  # Reading, Pennsylvania, B&O, Short Line
         current_pos = player.current_pos
         
@@ -169,7 +171,7 @@ class ChanceCardExecutor:
                     railroad_card.purchase_card(player)
 
     @staticmethod
-    def _handle_advance_to_nearest_utility(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_advance_to_nearest_utility(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         utility_positions = [12, 28]  # Electric Company, Water Works
         current_pos = player.current_pos
         
@@ -209,23 +211,41 @@ class ChanceCardExecutor:
                     utility_card.purchase_card(player)
 
     @staticmethod
-    def _handle_collect_from_all_players(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_collect_from_all_players(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         amount = card.effect_params['amount']
-        print(f"{player.name} collects ${amount} from each player!")
-        # TODO: Need access to all players to implement this properly
-        # For now, just give the player the money (will fix in game integration)
-        player.add_balance(amount)
+        if all_players:
+            total_collected = 0
+            for other_player in all_players:
+                if other_player != player and not other_player.bankruptcy_status:
+                    other_player.reduce_balance(amount)
+                    total_collected += amount
+                    print(f"{other_player.name} pays ${amount} to {player.name}")
+            player.add_balance(total_collected)
+            print(f"{player.name} collects ${total_collected} total from all other players!")
+        else:
+            # Fallback if no player list provided
+            print(f"{player.name} collects ${amount} (no other players available)")
+            player.add_balance(amount)
 
     @staticmethod
-    def _handle_pay_to_all_players(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_pay_to_all_players(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         amount = card.effect_params['amount']
-        print(f"{player.name} pays ${amount} to each player!")
-        # TODO: Need access to all players to implement this properly
-        # For now, just charge the player (will fix in game integration)
-        player.reduce_balance(amount)
+        if all_players:
+            total_paid = 0
+            for other_player in all_players:
+                if other_player != player and not other_player.bankruptcy_status:
+                    other_player.add_balance(amount)
+                    total_paid += amount
+                    print(f"{player.name} pays ${amount} to {other_player.name}")
+            player.reduce_balance(total_paid)
+            print(f"{player.name} pays ${total_paid} total to all other players!")
+        else:
+            # Fallback if no player list provided
+            print(f"{player.name} pays ${amount} (no other players available)")
+            player.reduce_balance(amount)
 
     @staticmethod
-    def _handle_street_repairs(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_street_repairs(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         house_cost = card.effect_params['house_cost']
         hotel_cost = card.effect_params['hotel_cost']
         
@@ -249,7 +269,7 @@ class ChanceCardExecutor:
             print(f"{player.name} has no properties requiring street repairs")
 
     @staticmethod
-    def _handle_advance_to_go(card: ChanceCard, player: 'Player', board: List['Card']):
+    def _handle_advance_to_go(card: ChanceCard, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None):
         print(f"{player.name} advances to GO and collects $200!")
         player.current_pos = 0
         player.add_balance(200)
@@ -421,8 +441,8 @@ class CommunityChestCard:
     effect_params: Dict[str, Any] = field(default_factory=dict)
     is_keepable: bool = False
 
-    def execute(self, player: 'Player', board: List['Card']) -> None:
-        ChanceCardExecutor.execute(self, player, board)
+    def execute(self, player: 'Player', board: List['Card'], all_players: List['Player'] = None, chance_deck=None, community_chest_deck=None) -> None:
+        ChanceCardExecutor.execute(self, player, board, all_players, chance_deck, community_chest_deck)
 
 
 # Standard Monopoly Community Chest Cards

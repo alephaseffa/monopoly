@@ -57,7 +57,7 @@ if __name__ == "__main__":
         print(f"{player_list[i].name}'s turn:")
 
         if player_list[i].name == "AI":
-            ai.move(Computer, board, chance_deck, community_chest_deck)
+            ai.move(Computer, board, chance_deck, community_chest_deck, player_list)
 
         else:
             user_choice = input("What do you want to do? ")
@@ -66,7 +66,7 @@ if __name__ == "__main__":
                 user_choice = input("What do you want to do? ")
                 result = player_list[i].player_action(user_choice, player_list, Computer, board)
             new_pos = player_list[i].move_player(result)
-            player_list[i].check_pos(board, chance_deck, community_chest_deck)
+            player_list[i].check_pos(board, chance_deck, community_chest_deck, player_list)
 
         i += 1
 
