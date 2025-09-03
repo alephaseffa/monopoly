@@ -9,7 +9,7 @@ This includes:
     - Chance information
 """
 from classes import card_definitions as c_def
-from classes.chance_cards import ChanceDeck, CHANCE_CARDS
+from classes.chance_cards import ChanceDeck, CHANCE_CARDS, CommunityChestDeck, COMMUNITY_CHEST_CARDS
 
 
 # card_name, color_group, card_cost, house_cost, houses_built, rent_prices, mortgage_amt, owner, mortgaged
@@ -227,6 +227,14 @@ def initialize_chance_deck():
     :return: ChanceDeck instance with all chance cards
     """
     return ChanceDeck(CHANCE_CARDS)
+
+
+def initialize_community_chest_deck():
+    """
+    Creates and returns a shuffled Community Chest card deck.
+    :return: CommunityChestDeck instance with all community chest cards
+    """
+    return CommunityChestDeck(COMMUNITY_CHEST_CARDS)
 
 
 def display_instructions() -> None:

@@ -43,11 +43,13 @@ class Player:
         self.current_pos += dice_amt
         return self.current_pos
 
-    def check_pos(self, board, chance_deck=None):
+    def check_pos(self, board, chance_deck=None, community_chest_deck=None, all_players=None):
         """
         Checks what card the player has landed on and carries out the appropriate action.
         :param board: list, the monopoly board.
         :param chance_deck: ChanceDeck instance for drawing chance cards.
+        :param community_chest_deck: CommunityChestDeck instance for drawing community chest cards.
+        :param all_players: list of all players for multi-player card effects.
         :return: None
         """
         self.current_pos = self.current_pos % 40
@@ -74,9 +76,10 @@ class Player:
                 print(f"{self.name} landed on {brd_property.card_name}")
                 if brd_property.card_name == 'Chance' and chance_deck:
                     card = chance_deck.draw()
-                    card.execute(self, board)
-                elif brd_property.card_name == 'Community Chest':
-                    print("Community Chest cards not yet implemented")
+                    card.execute(self, board, all_players, chance_deck, community_chest_deck)
+                elif brd_property.card_name == 'Community Chest' and community_chest_deck:
+                    card = community_chest_deck.draw()
+                    card.execute(self, board, all_players, chance_deck, community_chest_deck)
 
             else:
                 print(f"{self.name} landed on {brd_property.card_name}")

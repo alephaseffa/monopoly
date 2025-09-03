@@ -4,26 +4,26 @@ Contains the code for the AI that can play against the user.
 from classes import card_definitions as c_def
 
 
-def move(ai, board, chance_deck=None):
+def move(ai, board, chance_deck=None, community_chest_deck=None, all_players=None):
 
     if ai.in_jail:
-        leave_jail(ai, board, chance_deck)
+        leave_jail(ai, board, chance_deck, community_chest_deck, all_players)
 
     dice_roll = ai.roll_dice()
     ai.move_player(dice_roll)
     curr_card = board[ai.current_pos % 40]
-    purchasable = ai.check_pos(board, chance_deck)
+    purchasable = ai.check_pos(board, chance_deck, community_chest_deck, all_players)
 
     if purchasable and ai.balance > curr_card.card_cost:
         curr_card.purchase_card(ai)
         print(f"{ai.name} has purchased {curr_card.card_name}")
 
 
-def leave_jail(ai, board, chance_deck=None):
+def leave_jail(ai, board, chance_deck=None, community_chest_deck=None, all_players=None):
     ai.reduce_balance(50)
     ai.in_jail = False
     print(f"{ai.name} has paid the $50 bail and has been released from jail.")
-    move(ai, board, chance_deck)
+    move(ai, board, chance_deck, community_chest_deck, all_players)
 
 
 # TODO: evaluate what the human gains from the trade and factor that into the cost/benefit analysis.
